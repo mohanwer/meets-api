@@ -4,16 +4,19 @@ import * as jwt from 'express-jwt'
 import * as jwksRsa from 'jwks-rsa'
 import { config } from 'dotenv'
 import { ApolloServer } from 'apollo-server-express'
-import { createConnection } from 'typeorm'
+import { createConnection, useContainer } from 'typeorm'
 import { buildSchema } from 'type-graphql'
 import { EventResolver, UserResolver} from './resolvers'
 import {customAuthChecker} from './resolvers/customAuthChecker'
+import { Container } from 'typedi'
 
 (async() => {
+  useContainer(Container)
   await createConnection()
   const schema = await buildSchema({
     resolvers: [EventResolver, UserResolver],
-    authChecker: customAuthChecker
+    authChecker: customAuthChecker,
+    container: Container
   })
   config()
   const app = express()

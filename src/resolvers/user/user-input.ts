@@ -9,5 +9,5 @@ export class UserInput {
   email: string
 
   @Field()
-  displayNames: string
+  displayName: string
 }

@@ -4,7 +4,7 @@ import {Repository} from 'typeorm'
 import {InjectRepository} from 'typeorm-typedi-extensions'
 import {UserInput} from './user-input'
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
 
   constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) {}
@@ -15,9 +15,10 @@ export class UserResolver {
   }
 
   @Mutation(returns => User)
-  async addUser(@Arg("userData") userData: UserInput): Promise<User> {
+  async addUser(@Arg("userData") userData: UserInput): Promise<User | undefined> {
     console.log(JSON.stringify(userData, null, 2))
-    await this.userRepo.insert({...userData})
+    const newUser = this.userRepo.create({...userData})
+    await this.userRepo.save(newUser)
     return await this.userRepo.findOne(userData.id)
   }
 }
