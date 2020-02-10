@@ -58,7 +58,7 @@ import { Container } from 'typedi'
     playground: true,
     context: ({ req }) => {
       let nreq = <any> req;
-      let user = nreq.user;
+      let user = nreq.user.sub;
       return {
         userId: user, req: req
       };

@@ -7,6 +7,7 @@
     "start:watch": "nodemon --exec ts-node src/app.ts"
   },
   "dependencies": {
+    "@types/uuid": "^3.4.7",
     "apollo-server": "^2.9.16",
     "apollo-server-express": "^2.9.16",
     "await-to-js": "^2.1.1",
