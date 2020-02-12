@@ -6,18 +6,13 @@ import { config } from 'dotenv'
 import { ApolloServer } from 'apollo-server-express'
 import { createConnection, useContainer } from 'typeorm'
 import { buildSchema } from 'type-graphql'
-import { EventResolver, UserResolver} from './resolvers'
-import {customAuthChecker} from './resolvers/customAuthChecker'
+import { schemaOptions } from './resolvers'
 import { Container } from 'typedi'
 
 (async() => {
   useContainer(Container)
   await createConnection()
-  const schema = await buildSchema({
-    resolvers: [EventResolver, UserResolver],
-    authChecker: customAuthChecker,
-    container: Container
-  })
+  const schema = await buildSchema(schemaOptions)
   config()
   const app = express()
 
@@ -58,6 +53,11 @@ import { Container } from 'typedi'
     playground: true,
     context: ({ req }) => {
       let nreq = <any> req;
+
+      //Todo: Come up with a better way to handle this.
+      if (!nreq.user)
+        return ({userId: process.env.DEV_USER, req: req})
+
       let user = nreq.user.sub;
       return {
         userId: user, req: req

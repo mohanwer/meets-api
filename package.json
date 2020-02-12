@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start:watch": "nodemon --exec ts-node src/app.ts"
+    "start:watch": "nodemon --exec ts-node src/app.ts",
+    "db:setup": "ts-node ./src/test-utils/setup.ts",
+    "test": "npm run db:setup && jest"
   },
   "dependencies": {
     "@types/uuid": "^3.4.7",
@@ -32,14 +34,19 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.29",
     "@types/express-jwt": "0.0.42",
+    "@types/faker": "^4.1.9",
+    "@types/jest": "^25.1.2",
     "@types/jsonwebtoken": "^8.3.6",
     "@types/morgan": "^1.7.37",
     "@types/request": "^2.48.4",
     "@types/validator": "^12.0.1",
     "chai": "^4.2.0",
+    "faker": "^4.1.0",
+    "graphql-tools": "^4.0.6",
     "mocha": "^7.0.0",
     "morgan": "^1.9.1",
     "nodemon": "^2.0.2",
+    "ts-jest": "^25.2.0",
     "ts-node": "^8.6.2",
     "typescript": "^3.7.5"
   }
