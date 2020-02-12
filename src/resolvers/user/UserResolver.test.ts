@@ -18,7 +18,7 @@ afterAll(async() => {
 
 const userQuery = `
 {
-  getUser(id: "testUser") {
+  getUser(id: "testUserUser2") {
     id
     displayName
     email
@@ -40,7 +40,7 @@ describe("User", () => {
     const testUser = {
       displayName: name.firstName(),
       email: internet.email(),
-      id: 'testUser'
+      id: 'testUserUser'
     }
 
     const addUserResponse = await gCall({
@@ -61,7 +61,7 @@ describe("User", () => {
     const user = await User.create({
       displayName: name.firstName(),
       email: internet.email(),
-      id: 'testUser'
+      id: 'testUserUser2'
     }).save()
 
     const response = await gCall({

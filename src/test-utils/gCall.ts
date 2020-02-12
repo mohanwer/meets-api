@@ -17,7 +17,7 @@ export const gCall = async ({source, variableValues, userId}: Options) => {
     source,
     variableValues,
     contextValue: {
-      userId: 'testUser'
+      userId: userId
     }
   })
 }

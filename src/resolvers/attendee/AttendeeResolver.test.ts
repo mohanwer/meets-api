@@ -21,7 +21,7 @@ beforeAll(async() => {
   user = await User.create({
     displayName: name.firstName(),
     email: internet.email(),
-    id: 'testUser'
+    id: 'testUserAttendee'
   }).save()
 
   event = await Event.create({

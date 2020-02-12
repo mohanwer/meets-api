@@ -45,7 +45,7 @@ export class Event extends BaseEntity {
 
   @OneToMany(type => Attendee, attendee => attendee.event, {lazy: true})
   @Field(type => [Attendee], {nullable: true})
-  attendees: Lazy<Attendee[]>
+  attendees?: Lazy<Attendee[]>
 
   @CreateDateColumn()
   @Field()
