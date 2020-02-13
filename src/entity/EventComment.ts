@@ -1,31 +1,37 @@
 import {
   Entity,
+  Column,
   PrimaryColumn,
+  OneToOne,
+  JoinColumn,
   BaseEntity,
-  ManyToOne,
   CreateDateColumn,
-  UpdateDateColumn
-} from 'typeorm'
+  UpdateDateColumn, ManyToOne
+} from "typeorm"
 import { Field, ID, ObjectType } from 'type-graphql'
-import { Lazy } from './helpers'
-import { Event } from './Event'
-import { User } from './User'
+import { User, Event } from '.'
+import {Lazy} from './helpers'
 
-@Entity("attendees")
+
+@Entity("event_comments")
 @ObjectType()
-export class Attendee extends BaseEntity {
-
+export class EventComment extends BaseEntity {
   @PrimaryColumn({type: 'uuid'})
   @Field(type => ID)
   id: string
+
+  @Column({name: 'comment_text', type: 'varchar', nullable: false, length: 500})
+  @Field()
+  commentText: string
 
   @ManyToOne(type => Event, {lazy: true, nullable: false})
   @Field(type => Event, {nullable: false})
   event: Lazy<Event>
 
-  @ManyToOne(type => User, user => user.eventsAttended, {lazy: true})
+  @OneToOne(type => User, user => user.id, {lazy: true})
+  @JoinColumn({name: 'created_by'})
   @Field(type => User, {nullable: false})
-  attendee: Lazy<User>
+  createdBy: Lazy<User>
 
   @CreateDateColumn()
   @Field(type => Date, {nullable: false})
@@ -34,5 +40,4 @@ export class Attendee extends BaseEntity {
   @UpdateDateColumn()
   @Field(type => Date, {nullable: false})
   modified: Date
-
 }

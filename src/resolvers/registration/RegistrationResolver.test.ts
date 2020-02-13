@@ -2,17 +2,15 @@ import {Connection, useContainer} from 'typeorm'
 import {name, internet} from 'faker'
 import { testConn } from '../../test-utils/testConn'
 import {gCall} from '../../test-utils/gCall'
-import {User} from '../../entity/User'
+import {User, Event, Registration} from '../../entity'
 import {Container} from 'typedi'
-import {Event} from '../../entity/Event'
-import {Attendee} from '../../entity/Attendee'
 import {v4} from 'uuid'
 import * as faker from 'faker'
 
 let conn: Connection
 let user: User
 let event: Event
-let attendee: Attendee
+let attendee: Registration
 
 beforeAll(async() => {
 
@@ -35,7 +33,7 @@ beforeAll(async() => {
     createdBy: user,
   }).save()
 
-  attendee = await Attendee.create({
+  attendee = await Registration.create({
     id: v4(),
     event: event,
     attendee: user,
@@ -77,6 +75,12 @@ const addAttendeeMutation = `
         }
       }
     }
+  }
+`
+
+const deleteAttendeeMutation = `
+  mutation deleteAttendee($registrationId: String!) {
+    deleteAttendee(registrationId: $registrationId)
   }
 `
 
@@ -128,5 +132,49 @@ describe("Attendee", () => {
         }
       }
     })
+  })
+
+  it('removes an attendee', async() => {
+    const deleteUser = await User.create({
+      displayName: name.firstName(),
+      email: internet.email(),
+      id: 'testUserDelete',
+    }).save()
+
+    const registration = await Registration.create({
+      id: v4(),
+      event: event,
+      attendee: deleteUser,
+    }).save()
+
+    const removeAttendeeResponse = await gCall({
+      source: deleteAttendeeMutation,
+      userId: deleteUser.id,
+      variableValues: {registrationId: registration.id}
+    })
+
+    expect(removeAttendeeResponse.data.deleteAttendee).toEqual(1)
+  })
+
+  it('fails trying to remove an attendee', async() => {
+    const failingUser = await User.create({
+      displayName: name.firstName(),
+      email: internet.email(),
+      id: 'failingUserRegistration',
+    }).save()
+
+    const deleteRegistration = await Registration.create({
+      id: v4(),
+      event: event,
+      attendee: failingUser,
+    }).save()
+
+    const response = await gCall({
+      source: deleteAttendeeMutation,
+      userId: user.id,
+      variableValues: {registrationId: deleteRegistration.id}
+    })
+
+    expect(response).toHaveProperty('errors')
   })
 })

@@ -10,8 +10,7 @@ import {
   UpdateDateColumn
 } from "typeorm"
 import { Field, ID, ObjectType } from 'type-graphql'
-import { User } from './User'
-import { Attendee } from './Attendee'
+import { User, Registration, EventComment } from '.'
 import { Lazy } from './helpers'
 
 @Entity("events")
@@ -22,15 +21,15 @@ export class Event extends BaseEntity {
   @Field(type => ID)
   id: string
 
-  @Column({nullable: false, length: 100})
+  @Column({nullable: false, length: 100, type: 'varchar'})
   @Field()
   name: string
 
-  @Column({name: "brief_description", length: 500})
+  @Column({name: "brief_description", length: 500, type: 'varchar'})
   @Field()
   briefDescription?: string
 
-  @Column({name: 'long_description', length: 4000})
+  @Column({name: 'long_description', length: 4000, type: 'varchar'})
   @Field()
   longDescription?: string
 
@@ -43,9 +42,13 @@ export class Event extends BaseEntity {
   @Field(type => User, {nullable: false})
   createdBy: Lazy<User>
 
-  @OneToMany(type => Attendee, attendee => attendee.event, {lazy: true})
-  @Field(type => [Attendee], {nullable: true})
-  attendees?: Lazy<Attendee[]>
+  @OneToMany(type => Registration, attendee => attendee.event, {lazy: true})
+  @Field(type => [Registration], {nullable: true})
+  attendees?: Lazy<Registration[]>
+
+  @OneToMany<EventComment>(type => Comment, comment => comment.event, {lazy: true})
+  @Field(type => [EventComment], {nullable: true})
+  comments?: Lazy<EventComment[]>
 
   @CreateDateColumn()
   @Field()

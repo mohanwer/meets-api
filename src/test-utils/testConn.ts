@@ -11,6 +11,7 @@ export const testConn = (drop: boolean = false) => {
     database: "meets_test",
     synchronize: drop,
     dropSchema: drop,
+    maxQueryExecutionTime:30000,
     entities: [__dirname + "/../entity/*.*"]
   });
 };

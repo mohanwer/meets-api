@@ -1,6 +1,6 @@
 import {Entity, Column, PrimaryColumn, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn} from "typeorm"
 import { Field, ID, ObjectType } from 'type-graphql'
-import { Attendee } from './Attendee'
+import { Registration } from './Registration'
 import {Lazy} from './helpers'
 
 @Entity("users")
@@ -19,8 +19,8 @@ export class User extends BaseEntity {
   @Field()
   displayName!: string
 
-  @OneToMany(type => Attendee, attendee => attendee.attendee)
-  eventsAttended: Lazy<Attendee[]>
+  @OneToMany(type => Registration, attendee => attendee.attendee)
+  eventsAttended: Lazy<Registration[]>
 
   @CreateDateColumn()
   @Field()

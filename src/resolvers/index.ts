@@ -1,14 +1,14 @@
 import { UserResolver } from './user/UserResolver'
 import { EventResolver } from './event/EventResolver'
-import { AttendeeResolver } from './attendee/AttendeeResolver'
+import { RegistrationResolver } from './registration/RegistrationResolver'
 import { BuildSchemaOptions } from 'type-graphql'
 import { customAuthChecker } from './customAuthChecker'
 import { Container } from 'typedi'
 
 const schemaOptions: BuildSchemaOptions = {
-  resolvers: [EventResolver, UserResolver, AttendeeResolver],
+  resolvers: [EventResolver, UserResolver, RegistrationResolver],
   authChecker: customAuthChecker,
   container: Container
 }
 
-export { UserResolver, EventResolver, AttendeeResolver, schemaOptions }
+export { UserResolver, EventResolver, RegistrationResolver, schemaOptions }
