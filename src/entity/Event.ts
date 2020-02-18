@@ -7,11 +7,15 @@ import {
   BaseEntity,
   OneToMany,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  ManyToOne
 } from "typeorm"
 import { Field, ID, ObjectType } from 'type-graphql'
-import { User, Registration, EventComment } from '.'
+import { User } from './User'
+import { Registration } from './Registration'
+import { EventComment } from './EventComment'
 import { Lazy } from './helpers'
+import { Address } from "./Address"
 
 @Entity("events")
 @ObjectType()
@@ -21,11 +25,11 @@ export class Event extends BaseEntity {
   @Field(type => ID)
   id: string
 
-  @Column({nullable: false, length: 100, type: 'varchar'})
+  @Column({nullable: false, length: 250, type: 'varchar'})
   @Field()
   name: string
 
-  @Column({name: "brief_description", length: 500, type: 'varchar'})
+  @Column({name: "brief_description", length: 1000, type: 'varchar'})
   @Field()
   briefDescription?: string
 
@@ -37,7 +41,7 @@ export class Event extends BaseEntity {
   @Field(returns => Date, {nullable: false})
   eventDate: Date
 
-  @OneToOne(type => User, user => user.id, {lazy: true})
+  @ManyToOne(type => User, user => user.id, {lazy: true})
   @JoinColumn({name: 'created_by'})
   @Field(type => User, {nullable: false})
   createdBy: Lazy<User>
@@ -46,9 +50,13 @@ export class Event extends BaseEntity {
   @Field(type => [Registration], {nullable: true})
   attendees?: Lazy<Registration[]>
 
-  @OneToMany<EventComment>(type => Comment, comment => comment.event, {lazy: true})
+  @OneToMany<EventComment>(type => EventComment, eventComment => eventComment.event, {lazy: true})
   @Field(type => [EventComment], {nullable: true})
   comments?: Lazy<EventComment[]>
+
+  @ManyToOne(type => Address, address => address.events, {lazy: true})
+  @Field(type => Address)
+  address?: Lazy<Address>
 
   @CreateDateColumn()
   @Field()

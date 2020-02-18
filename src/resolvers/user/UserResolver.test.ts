@@ -2,8 +2,9 @@ import {Connection, useContainer} from 'typeorm'
 import {name, internet} from 'faker'
 import { testConn } from '../../test-utils/testConn'
 import {gCall} from '../../test-utils/gCall'
-import {User} from '../../entity/User'
 import {Container} from 'typedi'
+import { createUser } from '../../test-utils/fakeEntities';
+import * as faker from 'faker';
 
 let conn: Connection
 
@@ -13,17 +14,18 @@ beforeAll(async() => {
 })
 
 afterAll(async() => {
-  await conn.close()
+  if (conn?.close !== undefined)
+    await conn.close()
 })
 
 const userQuery = `
-{
-  getUser(id: "testUserUser2") {
-    id
-    displayName
-    email
+  query GetUser($id: String!) {
+    getUser(id: $id) {
+      id
+      displayName
+      email
+    }
   }
-}
 `
 
 const addUserMutation = `
@@ -40,7 +42,7 @@ describe("User", () => {
     const testUser = {
       displayName: name.firstName(),
       email: internet.email(),
-      id: 'testUserUser'
+      id: faker.random.alphaNumeric()
     }
 
     const addUserResponse = await gCall({
@@ -58,16 +60,14 @@ describe("User", () => {
   })
 
   it("gets a user", async() => {
-    const user = await User.create({
-      displayName: name.firstName(),
-      email: internet.email(),
-      id: 'testUserUser2'
-    }).save()
+    const user = await createUser()
 
     const response = await gCall({
       source: userQuery,
-      userId: user.id
+      userId: user.id,
+      variableValues: {id: user.id}
     })
+
     expect(response.data).toMatchObject({
       getUser: {
         id: user.id,

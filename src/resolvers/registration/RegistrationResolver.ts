@@ -2,7 +2,9 @@ import {Arg, Authorized, Ctx, Mutation, Query, Resolver} from 'type-graphql'
 import { Repository } from 'typeorm'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import { v4 } from 'uuid'
-import { User, Event, Registration } from '../../entity'
+import { Event } from '../../entity/Event'
+import { Registration } from '../../entity/Registration'
+import { User } from '../../entity/User'
 import {UnauthorizedError} from 'express-jwt'
 
 @Resolver(of => Registration)
@@ -46,7 +48,7 @@ export class RegistrationResolver {
   async deleteAttendee(
     @Arg("registrationId") registrationId: string,
     @Ctx("userId") userId: string
-  ) {
+  ): Promise<number | void> {
     console.log(`Deleting user ${userId} from registration registration ${registrationId}`)
     const attendeeRegistration = await this.attendeeRepo.findOne(registrationId)
     const attendee: User =  await attendeeRegistration.attendee

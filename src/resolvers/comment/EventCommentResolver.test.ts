@@ -1,48 +1,19 @@
 import {Connection, useContainer} from 'typeorm'
-import {name, internet} from 'faker'
 import { testConn } from '../../test-utils/testConn'
 import {gCall} from '../../test-utils/gCall'
-import {User, Event, Registration, EventComment} from '../../entity'
 import {Container} from 'typedi'
-import {v4} from 'uuid'
-import * as faker from 'faker'
+import { createUser, createEvent, createEventComment } from '../../test-utils/fakeEntities';
 
 let conn: Connection
-let comment: EventComment
-let user: User
-let event: Event
 
 beforeAll(async() => {
-
   useContainer(Container)
   conn = await testConn(true)
-
-  user = await User.create({
-    displayName: name.firstName(),
-    email: internet.email(),
-    id: 'commentUser'
-  }).save()
-
-  event = await Event.create({
-    id: v4(),
-    name: faker.lorem.sentence(),
-    briefDescription: faker.lorem.sentence(),
-    longDescription: faker.lorem.paragraph(),
-    eventDate: faker.date.future(1),
-    createdBy: user,
-  }).save()
-
-  comment = await EventComment.create({
-    id: v4(),
-    commentText: faker.lorem.paragraph(100),
-    event: event,
-    createdBy: user
-  }).save()
-
 })
 
 afterAll(async() => {
-  await conn.close()
+  if (conn?.close !== undefined)
+    await conn.close()
 })
 
 
@@ -58,16 +29,88 @@ const eventCommentQuery = `
   }
 `
 
-const eventCommentMutation = `
+const updateCommentMutation = `
   mutation UpdateEventComment($eventId: String!, $commentId: String!, $commentText: String!) {
     updateEventComment(eventId: $eventId, commentId: $commentId, commentText: $commentText) {
-      
+      id
+      commentText
+      createdBy {
+        displayName
+      }
     }
   }
 `
 
-describe("EventComment", () => {
-  it("gets an event comment", () => {
+const deleteCommentMutation = `
+  mutation DeleteEventComment($eventCommentId: String!) {
+    deleteEventComment(eventCommentId: $eventCommentId)
+  }
+`
 
+describe("EventComment", () => {
+
+  it("gets an event comment", async() => {
+
+    const user = await createUser()
+    const event = await createEvent(user)
+    const comment = await createEventComment(user, event)
+
+    const getCommentResponse = await gCall({
+      source: eventCommentQuery,
+      userId: user.id,
+      variableValues: {id: comment.id}
+    })
+
+    expect(getCommentResponse.data).toMatchObject({
+      eventComment: {
+        id: comment.id,
+        commentText: comment.commentText,
+        createdBy: {
+          displayName: user.displayName
+        }
+      }
+    })
+  })
+
+  it("updates an event comment", async() => {
+
+    const user = await createUser()
+    const event = await createEvent(user)
+    const comment = await createEventComment(user, event)
+    const newCommentTxt = 'New Comment'
+
+    const updateCommentResponse = await gCall({
+      source: updateCommentMutation,
+      userId: user.id,
+      variableValues: {eventId: event.id, commentId: comment.id, commentText: newCommentTxt}
+    })
+
+    expect(updateCommentResponse.data).toMatchObject({
+      updateEventComment : {
+        id: comment.id,
+        commentText: newCommentTxt,
+        createdBy: {
+          displayName: user.displayName
+        }
+      }
+    })
+  })
+
+  it("deletes an event comment", async() => {
+    const user = await createUser()
+    const event = await createEvent(user)
+    const comment = await createEventComment(user, event)
+
+    const deleteCommentResponse = await gCall({
+      source: deleteCommentMutation,
+      userId: user.id,
+      variableValues: {eventCommentId: comment.id}
+    })
+
+    event.remove()
+    comment.remove()
+    user.remove()
+
+    expect(deleteCommentResponse.data.deleteEventComment).toEqual(1)
   })
 })

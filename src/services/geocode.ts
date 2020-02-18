@@ -1,0 +1,86 @@
+import * as https from 'https'
+import * as querystring from 'querystring'
+import { AddressInput } from '../resolvers/event/event-input';
+import {ParsedUrlQueryInput} from 'querystring';
+
+export interface AddressToGeoCode extends AddressInput {
+  lat?: number
+  lng?: number
+}
+
+interface AddressRequest extends ParsedUrlQueryInput {
+  street: string
+  city: string
+  state: string
+  postal_code: string
+  country: string
+  api_key: string
+  limit: number
+}
+
+interface AddressResponse {
+  input: {
+    address_components: AddressComponents,
+    formatted_address: string
+  },
+  results: [{
+    address_components: AddressComponents
+    formatted_address: string
+    location: Location
+    accuracy: number
+    acurracy_type: string
+    source: string
+  }]
+}
+
+interface AddressComponents {
+  number: string
+  predirectional: string
+  formatted_stree: string
+  county: string
+  street: string
+  suffix: string
+  city: string
+  state: string
+  zip: string
+  country: string
+}
+
+interface Location {
+  lat: number
+  lng: number
+}
+
+export const geoCodeoApiAddr = 'https://api.geocod.io/v1.4/'
+
+export const geocode = async(address: AddressToGeoCode) => {
+  const queryParams: AddressRequest = {
+    street: address.addr1,
+    city: address.city,
+    state: address.state,
+    postal_code: address.postal,
+    country: address.country,
+    api_key: process.env.GEO_CODIO,
+    limit: 1
+  }
+  const qString = querystring.stringify(queryParams)
+  const apiGetUrl = `${geoCodeoApiAddr}geocode?${qString}`
+  const geoCodedResult: AddressResponse = await new Promise((resolve, reject) => {
+    https.get(apiGetUrl, (res) => {
+      let respData = ''
+      res.setEncoding('utf8')
+      res.on('data', (chunk) => {
+        respData += chunk
+      })
+      res.on('end', () => {
+        resolve(JSON.parse(respData))
+      })
+      res.on('error', (err) => {
+        reject(err)
+      })
+    })
+  }) 
+  
+  address.lng = geoCodedResult.results[0].location.lng
+  address.lat = geoCodedResult.results[0].location.lat
+}

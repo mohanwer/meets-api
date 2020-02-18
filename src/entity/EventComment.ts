@@ -9,7 +9,8 @@ import {
   UpdateDateColumn, ManyToOne
 } from "typeorm"
 import { Field, ID, ObjectType } from 'type-graphql'
-import { User, Event } from '.'
+import { User } from './User'
+import { Event } from './Event'
 import {Lazy} from './helpers'
 
 
@@ -20,7 +21,7 @@ export class EventComment extends BaseEntity {
   @Field(type => ID)
   id: string
 
-  @Column({name: 'comment_text', type: 'varchar', nullable: false, length: 500})
+  @Column({name: 'comment_text', type: 'varchar', nullable: false, length: 4000})
   @Field()
   commentText: string
 
@@ -28,7 +29,7 @@ export class EventComment extends BaseEntity {
   @Field(type => Event, {nullable: false})
   event: Lazy<Event>
 
-  @OneToOne(type => User, user => user.id, {lazy: true})
+  @ManyToOne(type => User, user => user.id, {lazy: true})
   @JoinColumn({name: 'created_by'})
   @Field(type => User, {nullable: false})
   createdBy: Lazy<User>

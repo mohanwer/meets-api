@@ -2,49 +2,21 @@ import {Connection, useContainer} from 'typeorm'
 import {name, internet} from 'faker'
 import { testConn } from '../../test-utils/testConn'
 import {gCall} from '../../test-utils/gCall'
-import {User, Event, Registration} from '../../entity'
+import {User} from '../../entity/User'
 import {Container} from 'typedi'
-import {v4} from 'uuid'
-import * as faker from 'faker'
+import { createUser, createRegistration, createEvent } from '../../test-utils/fakeEntities';
+import * as faker from 'faker';
 
 let conn: Connection
-let user: User
-let event: Event
-let attendee: Registration
 
 beforeAll(async() => {
-
   useContainer(Container)
   conn = await testConn(true)
-  user = await User.create({
-    displayName: name.firstName(),
-    email: internet.email(),
-    id: 'testUserAttendee'
-  }).save()
-
-  event = await Event.create({
-    id: v4(),
-    name: faker.lorem.sentence(),
-    briefDescription: faker.lorem.sentence(),
-    longDescription: faker.lorem.paragraph(),
-    eventDate: faker.date.future(1),
-    created: new Date(),
-    modified: new Date(),
-    createdBy: user,
-  }).save()
-
-  attendee = await Registration.create({
-    id: v4(),
-    event: event,
-    attendee: user,
-    created: new Date(),
-    modified: new Date()
-  }).save()
-
 })
 
 afterAll(async() => {
-  await conn.close()
+  if (conn?.close !== undefined)
+    await conn.close()
 })
 
 
@@ -86,6 +58,11 @@ const deleteAttendeeMutation = `
 
 describe("Attendee", () => {
   it("gets an attendee", async() => {
+
+    const user = await createUser()
+    const event = await createEvent(user)
+    const attendee = await createRegistration(user, event)
+    
     const getAttendeeResponse = await gCall({
       source: attendeeQuery,
       userId: user.id,
@@ -106,6 +83,9 @@ describe("Attendee", () => {
   })
 
   it("adds an attendee", async() => {
+    const user = await createUser()
+    const event = await createEvent(user)
+
     const addAttendeeResponse = await gCall({
       source: addAttendeeMutation,
       userId: user.id,
@@ -122,11 +102,6 @@ describe("Attendee", () => {
               attendee: {
                 displayName: user.displayName
               }
-            },
-            {
-              attendee: {
-                displayName: user.displayName
-              }
             }
           ]
         }
@@ -135,22 +110,14 @@ describe("Attendee", () => {
   })
 
   it('removes an attendee', async() => {
-    const deleteUser = await User.create({
-      displayName: name.firstName(),
-      email: internet.email(),
-      id: 'testUserDelete',
-    }).save()
-
-    const registration = await Registration.create({
-      id: v4(),
-      event: event,
-      attendee: deleteUser,
-    }).save()
+    const user = await createUser()
+    const event = await createEvent(user)
+    const attendee = await createRegistration(user, event)
 
     const removeAttendeeResponse = await gCall({
       source: deleteAttendeeMutation,
-      userId: deleteUser.id,
-      variableValues: {registrationId: registration.id}
+      userId: user.id,
+      variableValues: {registrationId: attendee.id}
     })
 
     expect(removeAttendeeResponse.data.deleteAttendee).toEqual(1)
@@ -160,19 +127,16 @@ describe("Attendee", () => {
     const failingUser = await User.create({
       displayName: name.firstName(),
       email: internet.email(),
-      id: 'failingUserRegistration',
+      id: faker.random.alphaNumeric()
     }).save()
-
-    const deleteRegistration = await Registration.create({
-      id: v4(),
-      event: event,
-      attendee: failingUser,
-    }).save()
+    const user = await createUser()
+    const event = await createEvent(user)
+    const attendee = await createRegistration(user, event)
 
     const response = await gCall({
       source: deleteAttendeeMutation,
-      userId: user.id,
-      variableValues: {registrationId: deleteRegistration.id}
+      userId: failingUser.id,
+      variableValues: {registrationId: attendee.id}
     })
 
     expect(response).toHaveProperty('errors')

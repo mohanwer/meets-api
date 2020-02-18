@@ -30,6 +30,24 @@ services:
       - postgres
     restart: unless-stopped
 
+  elasticsearch:
+    image: elasticsearch
+    container_name: elasticsearch
+    environment: 
+      - cluster.name=docker-cluster
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+
+  kibana:
+    image: kibana
+    container_name: kibana
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+
 networks:
   postgres:
     driver: bridge

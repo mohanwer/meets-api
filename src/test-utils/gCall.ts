@@ -1,6 +1,9 @@
 import { schemaOptions } from '../resolvers'
 import { Maybe, buildSchema } from 'type-graphql'
 import { graphql, GraphQLSchema } from 'graphql'
+import { config } from 'dotenv'
+
+config()
 
 interface Options {
   source: string

@@ -12,6 +12,11 @@ export const testConn = (drop: boolean = false) => {
     synchronize: drop,
     dropSchema: drop,
     maxQueryExecutionTime:30000,
-    entities: [__dirname + "/../entity/*.*"]
+    entities: [__dirname + "/../entity/*.*"],
+    extra: {
+      connectionLimit: 1
+    }
   });
 };
+
+export default testConn
