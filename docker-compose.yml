@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
 
   elasticsearch:
-    image: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
     container_name: elasticsearch
     environment: 
       - cluster.name=docker-cluster
@@ -39,14 +39,18 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - 9200:9200
+    networks:
+      - postgres
 
   kibana:
-    image: kibana
+    image: docker.elastic.co/kibana/kibana:7.6.0
     container_name: kibana
     ports:
       - 5601:5601
     depends_on:
       - elasticsearch
+    networks:
+      - postgres
 
 networks:
   postgres:

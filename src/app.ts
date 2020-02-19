@@ -1,26 +1,34 @@
+//Setup env variables
+import { config } from 'dotenv'
+config()
+
 import "reflect-metadata"
 import * as express  from 'express'
 import * as jwt from 'express-jwt'
 import * as jwksRsa from 'jwks-rsa'
-import { config } from 'dotenv'
 import { ApolloServer } from 'apollo-server-express'
 import { createConnection, useContainer } from 'typeorm'
 import { buildSchema } from 'type-graphql'
 import { schemaOptions } from './resolvers'
 import { Container } from 'typedi'
+import { createEventIndex } from './services/elastic';
 
 (async() => {
+  
+  //Data setup
   useContainer(Container)
   await createConnection()
+  await createEventIndex()
+
   const schema = await buildSchema(schemaOptions)
-  config()
+  
   const app = express()
 
+  //Auth setup
   const authConfig = {
     domain: process.env.AUTH0_DOMAIN,
     audience: process.env.AUTH0_AUDIENCE
   }
-
   const authMiddleware = jwt({
     secret: jwksRsa.expressJwtSecret({
       cache: true,
@@ -33,7 +41,6 @@ import { Container } from 'typedi'
     algorithm: ["RS256"],
     credentialsRequired: false
   })
-
   app.use(authMiddleware);
 
   app.use(function (err, req, res, next) {
@@ -64,6 +71,7 @@ import { Container } from 'typedi'
       };
     }
   })
+
   server.applyMiddleware({ app });
 
   app.listen({ port: 3000 }, async () => {
@@ -75,5 +83,5 @@ import { Container } from 'typedi'
       console.log('Connected to database');
     }
   })
-})();
 
+})();

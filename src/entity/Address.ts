@@ -1,3 +1,7 @@
+import { ObjectType, Field, ID } from 'type-graphql';
+import { Lazy } from './helpers';
+import { Event } from './Event';
+import { User } from './User';
 import { 
   BaseEntity, 
   Entity, 
@@ -7,11 +11,9 @@ import {
   ManyToOne, 
   JoinColumn, 
   CreateDateColumn,
-  UpdateDateColumn} from 'typeorm';
-import { ObjectType, Field, ID } from 'type-graphql';
-import { Lazy } from './helpers';
-import { Event } from './Event';
-import { User } from './User';
+  UpdateDateColumn
+} from 'typeorm';
+
 @Entity("addresses")
 @ObjectType()
 export class Address extends BaseEntity {
