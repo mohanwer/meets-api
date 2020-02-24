@@ -38,3 +38,9 @@ export class EventInput {
   @Field()
   address: AddressInput
 }
+
+@InputType()
+export class EventUpdateInput extends EventInput {
+  @Field()
+  id: string
+}

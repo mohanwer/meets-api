@@ -12,12 +12,14 @@ import { buildSchema } from 'type-graphql'
 import { schemaOptions } from './resolvers'
 import { Container } from 'typedi'
 import { createEventIndex } from './services/elastic';
+import { dbConnection } from './config/ormconfig';
 
 (async() => {
   
   //Data setup
   useContainer(Container)
-  await createConnection()
+  const connectionDetails = dbConnection()
+  await createConnection(connectionDetails)
   await createEventIndex()
 
   const schema = await buildSchema(schemaOptions)
@@ -62,7 +64,7 @@ import { createEventIndex } from './services/elastic';
       let nreq = <any> req;
 
       //Todo: Come up with a better way to handle this.
-      if (!nreq.user)
+      if (!nreq?.user)
         return ({userId: process.env.DEV_USER, req: req})
 
       let user = nreq.user.sub;

@@ -1,12 +1,15 @@
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
 import { Event } from '../../entity/Event'
-import { EventInput } from './event-input'
+import { EventInput, EventUpdateInput } from './event-input';
 import { Repository } from 'typeorm'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import { v4 } from 'uuid'
 import { User } from '../../entity/User'
 import { Address } from '../../entity/Address'
 import { geocode, AddressToGeoCode } from '../../services/geocode';
+import { updateEventIndex } from '../../services/elastic';
+import { UnauthorizedError } from 'express-jwt'
+import * as isEqual from lodash.isEqual
 
 @Resolver(of => Event)
 export class EventResolver {
@@ -38,8 +41,52 @@ export class EventResolver {
       createdBy: user
     }
     const newEvent = this.eventRepo.create(event)
+    
     await this.eventRepo.save(newEvent)
+    await updateEventIndex(newEvent)
+    
     return await this.eventRepo.findOne(eventId)
+  }
+
+  @Authorized()
+  @Mutation(returns => Event)
+  async updateEvent(
+    @Arg("eventData") eventData: EventUpdateInput,
+    @Ctx("userId") userId: string
+  ): Promise<Event> {
+    const currentEvent = await this.eventRepo.findOne(eventData.id)
+    const user = await currentEvent.createdBy
+
+    if (user.id !== userId)
+      throw new UnauthorizedError('credentials_required',{message: `Only user who created ${eventData.id} can modify it, not user ${userId}`})
+
+    const currentAddress = await currentEvent.address
+    const addressForCompare = (({addr1, addr2, city, state, postal, country}) => ({addr1, addr2, city, state, postal, country}))(currentAddress)
+
+    const {address} = eventData
+    const addressUpdateNeeded = isEqual(address, addressForCompare)
+    const addressToSave = addressUpdateNeeded ? this.getOrCreateAddress(address, user) : currentAddress
+
+    const eventForCompare = (({name, briefDescription, longDescription, eventDate}) => ({name, briefDescription, longDescription, eventDate}))(currentEvent)
+    const eventFromInput = {
+      name: eventData.name,
+      briefDescription: eventData.briefDescription,
+      longDescription: eventData.longDescription,
+      eventDate: eventData.eventDate
+    }
+    
+    const eventUpdateNeeded = isEqual(eventForCompare, eventFromInput)
+    if (eventUpdateNeeded || addressUpdateNeeded) {
+      const event = {
+        ...eventData,
+        address: addressToSave,
+        createdBy: user
+      }
+      const updatedEvent = await this.eventRepo.save(event)
+      await updateEventIndex(updatedEvent)
+    }
+    
+    return await this.eventRepo.findOne(eventData.id)
   }
 
   async getOrCreateAddress(

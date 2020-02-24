@@ -1,4 +1,5 @@
 import {Client} from '@elastic/elasticsearch'
+import { Event } from '../entity/Event';
 
 export const client = new Client({node: process.env.ELASTIC_HOST})
 
@@ -32,6 +33,34 @@ export const createEventIndex = async() => {
       aliases: {
         events: {}
       }
+    }
+  })
+}
+
+export const updateEventIndex = async(event: Event) => {
+  console.log(`Indexing Event ${event.id}`)
+  
+  const user = await event.createdBy
+  const address = await event.address
+  await client.index({
+    index: 'events',
+    id: event.id,
+    body: {
+      name: event.name,
+      briefDescription: event.briefDescription,
+      longDescription: event.longDescription,
+      eventDate: event.eventDate,
+      userId: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      addressId: address.id,
+      addr1: address.addr1,
+      addr2: address.addr2,
+      city: address.city,
+      state: address.state,
+      postal: address.postal,
+      country: address.country,
+      location: [address.lat, address.lng]
     }
   })
 }
