@@ -11,7 +11,7 @@ export const testConn = (drop: boolean = false) => {
     database: "meets_test",
     synchronize: drop,
     dropSchema: drop,
-    maxQueryExecutionTime:30000,
+    maxQueryExecutionTime: 300000,
     entities: [__dirname + "/../entity/*.*"],
     extra: {
       connectionLimit: 1

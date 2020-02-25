@@ -9,7 +9,7 @@ import { Address } from '../../entity/Address'
 import { geocode, AddressToGeoCode } from '../../services/geocode';
 import { updateEventIndex } from '../../services/elastic';
 import { UnauthorizedError } from 'express-jwt'
-import * as isEqual from lodash.isEqual
+import { isEqual } from 'lodash';
 
 @Resolver(of => Event)
 export class EventResolver {
@@ -64,8 +64,8 @@ export class EventResolver {
     const addressForCompare = (({addr1, addr2, city, state, postal, country}) => ({addr1, addr2, city, state, postal, country}))(currentAddress)
 
     const {address} = eventData
-    const addressUpdateNeeded = isEqual(address, addressForCompare)
-    const addressToSave = addressUpdateNeeded ? this.getOrCreateAddress(address, user) : currentAddress
+    const addressUpdateNeeded = !isEqual(address, addressForCompare)
+    const addressToSave = addressUpdateNeeded ? await this.getOrCreateAddress(address, user) : currentAddress
 
     const eventForCompare = (({name, briefDescription, longDescription, eventDate}) => ({name, briefDescription, longDescription, eventDate}))(currentEvent)
     const eventFromInput = {
@@ -75,19 +75,37 @@ export class EventResolver {
       eventDate: eventData.eventDate
     }
     
-    const eventUpdateNeeded = isEqual(eventForCompare, eventFromInput)
+    const eventUpdateNeeded = !isEqual(eventForCompare, eventFromInput)
     if (eventUpdateNeeded || addressUpdateNeeded) {
       const event = {
         ...eventData,
         address: addressToSave,
         createdBy: user
       }
-      const updatedEvent = await this.eventRepo.save(event)
+      await this.eventRepo.update(event.id, event)
+      const updatedEvent = await this.eventRepo.findOne(event.id)
       await updateEventIndex(updatedEvent)
     }
     
     return await this.eventRepo.findOne(eventData.id)
   }
+
+  @Authorized()
+  @Mutation(returns => Number)
+  async deleteEvent (
+    @Arg("id") id: string,
+    @Ctx("userId") userId: string
+  ): Promise<number | null> {
+    const event = await this.eventRepo.findOne(id)
+    const user = await event.createdBy
+
+    if (userId !== user.id)
+      throw new UnauthorizedError('credentials_required', {message: `Only user who created event ${id} can delete it, not ${userId}`})
+    
+    const deleteResult = await this.eventRepo.delete(id)
+    return deleteResult.affected
+  }
+  
 
   async getOrCreateAddress(
     addressToCheck: AddressToGeoCode, 

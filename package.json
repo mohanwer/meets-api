@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.6.0",
+    "@types/lodash.isequal": "^4.5.5",
     "@types/uuid": "^3.4.7",
     "apollo-server": "^2.9.16",
     "apollo-server-express": "^2.9.16",
@@ -21,7 +22,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwk-to-pem": "^2.0.3",
     "jwks-rsa": "^1.6.2",
-    "lodash.isequal": "^4.5.0",
+    "lodash": "^4.17.15",
     "pg": "^7.17.1",
     "pg-hstore": "^2.3.3",
     "reflect-metadata": "^0.1.13",

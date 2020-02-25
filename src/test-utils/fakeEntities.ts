@@ -23,15 +23,18 @@ export const createAddress = async(createdBy: User): Promise<Address> =>
     createdBy: createdBy
   }).save()
 
-export const createEvent = async(createdBy: User): Promise<Event> => 
-  await Event.create({
+export const createEvent = async(createdBy: User): Promise<Event> => {
+  const address = await createAddress(createdBy)
+  return await Event.create({
     id: v4(),
     name: faker.lorem.sentence(),
     briefDescription: faker.lorem.sentence(),
     longDescription: faker.lorem.paragraph(),
     eventDate: faker.date.future(1),
     createdBy: createdBy,
+    address: address,
   }).save()
+}
 
 export const createEventComment = async(createdBy: User, event: Event): Promise<EventComment> =>
   await EventComment.create({
