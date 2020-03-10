@@ -4,7 +4,6 @@ import { gCall } from '../../test-utils/gCall';
 import { Container } from 'typedi';
 import { createUser, createAddress, createEvent } from '../../test-utils/fakeEntities';
 import * as faker from 'faker'
-import { gql } from 'apollo-server-express';
 
 let conn: Connection
 

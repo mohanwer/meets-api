@@ -1,8 +1,10 @@
-import {Entity, Column, PrimaryColumn, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn} from "typeorm"
+import {Entity, Column, PrimaryColumn, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToMany} from "typeorm"
 import { Field, ID, ObjectType } from 'type-graphql'
 import { Registration } from './Registration'
-import {Lazy} from './helpers'
-import { Event } from './Event'
+import { Lazy } from './helpers'
+import { Event } from './Event';
+import { Group } from './Group';
+import { GroupMember } from './GroupMember'
 
 @Entity("users")
 @ObjectType()
@@ -20,13 +22,21 @@ export class User extends BaseEntity {
   @Field()
   displayName!: string
 
-  @OneToMany(type => Registration, registration => registration.attendee)
+  @OneToMany(type => Registration, registration => registration.attendee, {lazy: true, nullable: true})
   @Field(type => [Registration], {nullable: true})
-  eventsAttended: Lazy<Registration[]>
+  eventsAttended?: Lazy<Registration[]>
 
-  @OneToMany(type => Event, event => event.createdBy)
+  @OneToMany(type => Event, event => event.createdBy, {lazy: true, nullable: true})
   @Field(type => [Event], {nullable: true})
-  eventsCreated: Lazy<Event[]>
+  eventsCreated?: Lazy<Event[]>
+
+  @OneToMany(type => Group, group => group.createdBy, {lazy: true, nullable: true})
+  @Field(type => [Group], {nullable: true})
+  groupsCreated?: Lazy<Group[]>
+
+  @OneToMany(type => GroupMember, groupMember => groupMember.member, {lazy: true, nullable: true})
+  @Field(type => [Group], {nullable: true})
+  groupMembership?: Lazy<User[]>
 
   @CreateDateColumn()
   @Field()

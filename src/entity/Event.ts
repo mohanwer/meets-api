@@ -2,7 +2,6 @@ import {
   Entity,
   Column,
   PrimaryColumn,
-  OneToOne,
   JoinColumn,
   BaseEntity,
   OneToMany,
@@ -16,6 +15,7 @@ import { Registration } from './Registration'
 import { EventComment } from './EventComment'
 import { Lazy } from './helpers'
 import { Address } from "./Address"
+import { Group } from "./Group"
 
 @Entity("events")
 @ObjectType()
@@ -46,15 +46,21 @@ export class Event extends BaseEntity {
   @Field(type => User, {nullable: false})
   createdBy: Lazy<User>
 
-  @OneToMany(type => Registration, attendee => attendee.event, {lazy: true})
+  @OneToMany(type => Registration, registration => registration.event, {lazy: true, onDelete: "CASCADE"})
   @Field(type => [Registration], {nullable: true})
   attendees?: Lazy<Registration[]>
 
-  @OneToMany<EventComment>(type => EventComment, eventComment => eventComment.event, {lazy: true})
+  @OneToMany<EventComment>(type => EventComment, eventComment => eventComment.event, {lazy: true, onDelete: "CASCADE"})
   @Field(type => [EventComment], {nullable: true})
   comments?: Lazy<EventComment[]>
 
+  @ManyToOne<Group>(type => Group, group => group.events, {lazy: true, nullable: true})
+  @JoinColumn({name: 'created_by_group'})
+  @Field(type => Group)
+  createdByGroup?: Lazy<Group>
+
   @ManyToOne(type => Address, address => address.events, {lazy: true})
+  @JoinColumn({name: 'address_id'})
   @Field(type => Address)
   address?: Lazy<Address>
 

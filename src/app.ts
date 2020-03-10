@@ -13,6 +13,9 @@ import { schemaOptions } from './resolvers'
 import { Container } from 'typedi'
 import { createEventIndex } from './services/elastic';
 import { dbConnection } from './config/ormconfig';
+import { searchRouter } from './routes/search'
+import * as bodyParser from 'body-parser'
+import { seedEvents } from './test-utils/seed';
 
 (async() => {
   
@@ -21,10 +24,19 @@ import { dbConnection } from './config/ormconfig';
   const connectionDetails = dbConnection()
   await createConnection(connectionDetails)
   await createEventIndex()
-
   const schema = await buildSchema(schemaOptions)
   
+  if (process.env.NODE_ENV === "DEV") {
+    await seedEvents()
+  }
+  
+
   const app = express()
+  app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded({ extended: true }));
+
+  //Add single post end point for searching events.
+  app.use(searchRouter)
 
   //Auth setup
   const authConfig = {

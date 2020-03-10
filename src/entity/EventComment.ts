@@ -2,7 +2,6 @@ import {
   Entity,
   Column,
   PrimaryColumn,
-  OneToOne,
   JoinColumn,
   BaseEntity,
   CreateDateColumn,
@@ -11,8 +10,7 @@ import {
 import { Field, ID, ObjectType } from 'type-graphql'
 import { User } from './User'
 import { Event } from './Event'
-import {Lazy} from './helpers'
-
+import { Lazy } from './helpers'
 
 @Entity("event_comments")
 @ObjectType()

@@ -1,4 +1,4 @@
-import {
+import { 
   Entity,
   PrimaryColumn,
   BaseEntity,
@@ -9,26 +9,26 @@ import {
 } from 'typeorm'
 import { Field, ID, ObjectType } from 'type-graphql'
 import { Lazy } from './index';
-import { Event } from './Event';
+import { Group } from './Group';
 import { User } from './User';
 
-@Entity("event_attendees")
+@Entity("group_members")
 @ObjectType()
-export class Registration extends BaseEntity {
+export class GroupMember extends BaseEntity {
 
   @PrimaryColumn({type: 'uuid'})
   @Field(type => ID)
   id: string
 
-  @ManyToOne(type => Event, {lazy: true, nullable: false})
-  @JoinColumn({name: 'event_id'})
-  @Field(type => Event, {nullable: false})
-  event: Lazy<Event>
+  @ManyToOne(type => Group, {lazy: true, nullable: false})
+  @JoinColumn({name: 'group_id'})
+  @Field(type => Group, {nullable: false})
+  group: Lazy<Group>
 
-  @ManyToOne(type => User, user => user.eventsAttended, {lazy: true, nullable: false})
-  @JoinColumn({name: 'attendee_id'})
+  @ManyToOne(type => User, user => user.groupMembership, {lazy: true, nullable: false})
   @Field(type => User, {nullable: false})
-  attendee: Lazy<User>
+  @JoinColumn({name: 'group_member_id'})
+  member: Lazy<User>
 
   @CreateDateColumn()
   @Field(type => Date, {nullable: false})

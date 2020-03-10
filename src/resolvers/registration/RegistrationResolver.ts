@@ -30,6 +30,7 @@ export class RegistrationResolver {
     const id = v4()
     const user = await this.userRepo.findOne(userId)
     const event = await this.eventRepo.findOne(eventId)
+    
     if (event.eventDate < new Date())
       throw new Error('Cannot register for expired event')
 
