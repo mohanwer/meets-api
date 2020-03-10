@@ -47,7 +47,8 @@ export class GroupMemberResolver {
     const groupMembership = await this.groupMemberRepo.createQueryBuilder()
       .where('id = :id', { id: groupMembershipId})
       .andWhere('member = :userId', {userId: userId}).getOne()
-    if (!groupMembership)
+    
+      if (!groupMembership)
       throw Error(`There is no membership for ${groupMembershipId} with user ${userId}`)
     
     const deleteResult = await this.groupMemberRepo.delete(groupMembership)
