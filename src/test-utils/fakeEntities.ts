@@ -1,5 +1,5 @@
 import * as faker from 'faker'
-import { Event, User, Registration, EventComment, Address } from '../entity'
+import { Event, User, Registration, EventComment, Address, Group } from '../entity'
 import {v4} from 'uuid'
 import * as rrad from 'rrad'
 
@@ -60,6 +60,15 @@ export const createRegistration = async(createdBy: User, event: Event): Promise<
     id: v4(),
     event: event,
     attendee: createdBy,
+    created: new Date(),
+    modified: new Date()
+  }).save()
+
+export const createGroup = async(createdBy: User): Promise<Group> =>
+  await Group.create({
+    id: v4(),
+    about: faker.lorem.sentences(),
+    createdBy: createdBy,
     created: new Date(),
     modified: new Date()
   }).save()

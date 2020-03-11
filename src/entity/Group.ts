@@ -14,7 +14,7 @@ import { User } from './User';
 import { Event } from './Event';
 import { Lazy } from './helpers';
 
-@Entity("group_members")
+@Entity("groups")
 @ObjectType()
 export class Group extends BaseEntity {
 
@@ -30,13 +30,14 @@ export class Group extends BaseEntity {
   @Field(type => [Event], {nullable: true})
   events?: Lazy<Event[]>
 
-  @ManyToOne(type => User, user => user.groupsCreated, {lazy: true})
+  @ManyToOne(type => User, user => user.id, {lazy: true})
   @JoinColumn({name: 'created_by'})
   @Field(type => User, {nullable: false})
   createdBy: Lazy<User>
 
   @OneToMany(type => User, user => user.groupMembership, {lazy: true, nullable: true, onDelete: "CASCADE"})
   @Field(type => [User], {nullable: true})
+  
   groupMembers?: Lazy<User[]>
 
   @CreateDateColumn()

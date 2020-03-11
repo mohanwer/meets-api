@@ -82,4 +82,28 @@ export class GroupResolver {
     const deleteResult = await this.groupRepo.delete(group.id)
     return deleteResult.affected
   }
+
+  @Authorized()
+  @Mutation(returns => Group)
+  async updateGroup(
+    @Arg('groupId') groupId: string,
+    @Arg('about') about: string,
+    @Ctx('userId') userId: string
+  ): Promise<Group> {
+    const group = await this.groupRepo.findOne(groupId)
+    const user = await group.createdBy
+
+    if (user.id !== userId)
+      throw new AuthenticationError(`User ${userId} does not have permission to delete this group ${groupId}`)
+
+    if (group.about === about)
+      return group
+    
+    const updatedGroup = {
+      about: about
+    }
+
+    await this.groupRepo.update(group.id, updatedGroup)
+    return await this.groupRepo.findOne(groupId)
+  }
 }

@@ -20,7 +20,7 @@ export class GroupMember extends BaseEntity {
   @Field(type => ID)
   id: string
 
-  @ManyToOne(type => Group, {lazy: true, nullable: false})
+  @ManyToOne(type => Group, group => group.groupMembers, {lazy: true, nullable: false})
   @JoinColumn({name: 'group_id'})
   @Field(type => Group, {nullable: false})
   group: Lazy<Group>

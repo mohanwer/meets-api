@@ -5,11 +5,28 @@ import { BuildSchemaOptions } from 'type-graphql'
 import { customAuthChecker } from './customAuthChecker'
 import { Container } from 'typedi'
 import { EventCommentResolver } from './comment/EventCommentResolver'
+import { GroupResolver } from './group/GroupResolver';
+import { GroupMemberResolver } from './groupMember/GroupMemberResolver';
 
 const schemaOptions: BuildSchemaOptions = {
-  resolvers: [EventResolver, UserResolver, RegistrationResolver, EventCommentResolver],
+  resolvers: [
+    EventResolver, 
+    UserResolver, 
+    RegistrationResolver, 
+    EventCommentResolver,
+    GroupMemberResolver,
+    GroupResolver,
+  ],
   authChecker: customAuthChecker,
   container: Container
 }
 
-export { UserResolver, EventResolver, RegistrationResolver, EventCommentResolver, schemaOptions }
+export { 
+  UserResolver, 
+  EventResolver, 
+  RegistrationResolver, 
+  GroupResolver,
+  GroupMemberResolver,
+  EventCommentResolver, 
+  schemaOptions 
+}
