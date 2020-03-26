@@ -13,6 +13,7 @@ import { Field, ID, ObjectType } from 'type-graphql'
 import { User } from './User';
 import { Event } from './Event';
 import { Lazy } from './helpers';
+import { GroupMember } from './GroupMember';
 
 @Entity("groups")
 @ObjectType()
@@ -35,10 +36,9 @@ export class Group extends BaseEntity {
   @Field(type => User, {nullable: false})
   createdBy: Lazy<User>
 
-  @OneToMany(type => User, user => user.groupMembership, {lazy: true, nullable: true, onDelete: "CASCADE"})
-  @Field(type => [User], {nullable: true})
-  
-  groupMembers?: Lazy<User[]>
+  @OneToMany(type => GroupMember, groupMember => groupMember.group, {lazy: true, nullable: true, onDelete: "CASCADE"})
+  @Field(type => [GroupMember], {nullable: true})
+  groupMembers?: Lazy<GroupMember[]>
 
   @CreateDateColumn()
   @Field()

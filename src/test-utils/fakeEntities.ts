@@ -2,6 +2,7 @@ import * as faker from 'faker'
 import { Event, User, Registration, EventComment, Address, Group } from '../entity'
 import {v4} from 'uuid'
 import * as rrad from 'rrad'
+import { GroupMember } from '../entity/GroupMember';
 
 export const createUser = async(userId?: string): Promise<User> =>
   await User.create({
@@ -16,7 +17,6 @@ export const createAddress = async(createdBy: User): Promise<Address> => {
   // Sometimes the city is null so we need to retry another address if it is.
   do {
     randomAddress = rrad.addresses[Math.floor(Math.random() * rrad.addresses.length)]
-    console.log(randomAddress.city)
   } while (randomAddress.city === null || randomAddress.city == undefined)
   
   return await Address.create({
@@ -71,4 +71,11 @@ export const createGroup = async(createdBy: User): Promise<Group> =>
     createdBy: createdBy,
     created: new Date(),
     modified: new Date()
+  }).save()
+
+export const createGroupMember = async(memberUser: User, group: Group): Promise<GroupMember> =>
+  await GroupMember.create({
+    id: v4(),
+    group: group,
+    member: memberUser,
   }).save()

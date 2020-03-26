@@ -42,7 +42,7 @@ export class GroupResolver {
 
   @Authorized()
   @Mutation(returns => Group)
-  async addEvent(
+  async addGroupEvent(
     @Arg('groupId') groupId: string,
     @Arg('eventData') eventData: EventInput,
     @Ctx('userId') userId: string

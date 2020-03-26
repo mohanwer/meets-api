@@ -26,7 +26,7 @@ export class GroupMemberResolver {
     const group = await this.groupRepo.findOne(groupId)
     const groupMembers = await group.groupMembers
 
-    if (!groupMembers.some(member => member.id === user.id))
+    if (groupMembers.some(member => member.id === user.id))
       throw Error(`The user ${userId} is already a member of ${groupId}`)
 
     const groupMember = {
@@ -46,12 +46,12 @@ export class GroupMemberResolver {
   ): Promise<number | void> {
     const groupMembership = await this.groupMemberRepo.createQueryBuilder()
       .where('id = :id', { id: groupMembershipId})
-      .andWhere('member = :userId', {userId: userId}).getOne()
+      .andWhere('group_member_id = :userId', {userId: userId}).getOne()
     
-      if (!groupMembership)
+    if (!groupMembership)
       throw Error(`There is no membership for ${groupMembershipId} with user ${userId}`)
     
-    const deleteResult = await this.groupMemberRepo.delete(groupMembership)
+    const deleteResult = await this.groupMemberRepo.delete(groupMembership.id)
     
     return deleteResult.affected
   }

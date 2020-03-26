@@ -3,7 +3,7 @@ import { testConn } from '../../test-utils/testConn'
 import { gCall } from '../../test-utils/gCall'
 import { Container } from 'typedi'
 import * as faker from 'faker'
-import { createUser, createGroup } from '../../test-utils/fakeEntities';
+import { createUser, createGroup } from '../../test-utils/fakeEntities'
 
 let conn: Connection
 

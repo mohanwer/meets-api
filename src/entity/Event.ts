@@ -56,7 +56,7 @@ export class Event extends BaseEntity {
 
   @ManyToOne<Group>(type => Group, group => group.events, {lazy: true, nullable: true})
   @JoinColumn({name: 'created_by_group'})
-  @Field(type => Group)
+  @Field(type => Group, {nullable: true})
   createdByGroup?: Lazy<Group>
 
   @ManyToOne(type => Address, address => address.events, {lazy: true})

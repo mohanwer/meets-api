@@ -4,7 +4,7 @@ import { Registration } from './Registration'
 import { Lazy } from './helpers'
 import { Event } from './Event';
 import { Group } from './Group';
-import { GroupMember } from './GroupMember'
+import { GroupMember } from './GroupMember';
 
 @Entity("users")
 @ObjectType()
@@ -35,8 +35,8 @@ export class User extends BaseEntity {
   groupsCreated?: Lazy<Group[]>
 
   @OneToMany(type => GroupMember, groupMember => groupMember.member, {lazy: true, nullable: true})
-  @Field(type => [Group], {nullable: true})
-  groupMembership?: Lazy<User[]>
+  @Field(type => [GroupMember], {nullable: true})
+  groupMembership?: Lazy<GroupMember[]>
 
   @CreateDateColumn()
   @Field()
