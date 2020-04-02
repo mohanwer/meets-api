@@ -1,8 +1,8 @@
 import {Connection, useContainer} from 'typeorm'
 import {name, internet} from 'faker'
 import { testConn } from '../../test-utils/testConn'
-import {gCall} from '../../test-utils/gCall'
-import {Container} from 'typedi'
+import { gCall } from '../../test-utils/gCall'
+import { Container } from 'typedi'
 import { createUser } from '../../test-utils/fakeEntities';
 import * as faker from 'faker';
 

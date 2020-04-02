@@ -1,12 +1,8 @@
 import {Connection, useContainer} from 'typeorm'
-import {name, internet} from 'faker'
 import { testConn } from '../../test-utils/testConn'
 import {gCall} from '../../test-utils/gCall'
-import {User} from '../../entity/User'
 import {Container} from 'typedi'
 import { createGroup, createUser, createGroupMember } from '../../test-utils/fakeEntities';
-import * as faker from 'faker'
-import { GroupMember } from '../../entity/GroupMember';
 
 let conn: Connection
 

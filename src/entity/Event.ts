@@ -46,11 +46,11 @@ export class Event extends BaseEntity {
   @Field(type => User, {nullable: false})
   createdBy: Lazy<User>
 
-  @OneToMany(type => Registration, registration => registration.event, {lazy: true, onDelete: "CASCADE"})
+  @OneToMany(type => Registration, registration => registration.event, {lazy: true, onDelete: 'CASCADE'})
   @Field(type => [Registration], {nullable: true})
   attendees?: Lazy<Registration[]>
 
-  @OneToMany<EventComment>(type => EventComment, eventComment => eventComment.event, {lazy: true, onDelete: "CASCADE"})
+  @OneToMany<EventComment>(type => EventComment, eventComment => eventComment.event, {lazy: true, onDelete: 'CASCADE'})
   @Field(type => [EventComment], {nullable: true})
   comments?: Lazy<EventComment[]>
 
@@ -59,7 +59,7 @@ export class Event extends BaseEntity {
   @Field(type => Group, {nullable: true})
   createdByGroup?: Lazy<Group>
 
-  @ManyToOne(type => Address, address => address.events, {lazy: true})
+  @ManyToOne(type => Address, address => address.events, {lazy: true, onDelete: 'CASCADE'})
   @JoinColumn({name: 'address_id'})
   @Field(type => Address)
   address?: Lazy<Address>

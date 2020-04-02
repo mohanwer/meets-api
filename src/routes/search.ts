@@ -9,9 +9,7 @@ export interface SearchRequest {
     distance: string
   }
 }
-const options: RouterOptions = {
-  
-}
+
 const searchRouter = Router()
 
 searchRouter.post('/search/events', async(req, res) => {

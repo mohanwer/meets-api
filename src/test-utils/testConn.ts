@@ -14,7 +14,7 @@ export const testConn = (drop: boolean = false) => {
     maxQueryExecutionTime: 300000,
     entities: [__dirname + "/../entity/*.*"],
     extra: {
-      connectionLimit: 3
+      connectionLimit: 1
     }
   });
 };

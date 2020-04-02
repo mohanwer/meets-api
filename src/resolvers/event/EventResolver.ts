@@ -7,7 +7,7 @@ import { v4 } from 'uuid'
 import { User } from '../../entity/User'
 import { Address } from '../../entity/Address'
 import { geocode, AddressToGeoCode } from '../../services/geocode';
-import { updateEventIndex } from '../../services/elastic';
+import { updateEventInIndex } from '../../services/elastic';
 import { UnauthorizedError } from 'express-jwt'
 import { isEqual } from 'lodash';
 
@@ -43,7 +43,7 @@ export class EventResolver {
     const newEvent = this.eventRepo.create(event)
     
     await this.eventRepo.save(newEvent)
-    await updateEventIndex(newEvent)
+    await updateEventInIndex(newEvent)
     
     return await this.eventRepo.findOne(eventId)
   }
@@ -84,7 +84,7 @@ export class EventResolver {
       }
       await this.eventRepo.update(event.id, event)
       const updatedEvent = await this.eventRepo.findOne(event.id)
-      await updateEventIndex(updatedEvent)
+      await updateEventInIndex(updatedEvent)
     }
     
     return await this.eventRepo.findOne(eventData.id)

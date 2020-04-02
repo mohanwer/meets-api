@@ -22,6 +22,7 @@ import { seedEvents } from './test-utils/seed';
   //Data setup
   useContainer(Container)
   const connectionDetails = dbConnection()
+
   await createConnection(connectionDetails)
   await createEventIndex()
   const schema = await buildSchema(schemaOptions)
@@ -29,7 +30,6 @@ import { seedEvents } from './test-utils/seed';
   if (process.env.NODE_ENV === "DEV") {
     await seedEvents()
   }
-  
 
   const app = express()
   app.use(bodyParser.json())
