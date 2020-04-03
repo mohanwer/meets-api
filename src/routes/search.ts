@@ -1,4 +1,4 @@
-import app, {Router, RouterOptions} from 'express'
+import {Router} from 'express'
 import {searchEvents} from '../services/elastic'
 
 export interface SearchRequest {
@@ -7,7 +7,9 @@ export interface SearchRequest {
     lat: number,
     lng: number,
     distance: string
-  }
+  },
+  from?: number,
+  size?: number
 }
 
 const searchRouter = Router()
@@ -17,6 +19,5 @@ searchRouter.post('/search/events', async(req, res) => {
   const searchResults = await searchEvents(searchParams)
   res.send(searchResults)
 })
-
 
 export {searchRouter}

@@ -1,14 +1,6 @@
 import { Client, ApiResponse } from '@elastic/elasticsearch'
-import { Event } from '../entity/Event';
+import { Event } from '../entity';
 import { SearchRequest } from '../routes/search';
-
-export interface GeoDistance {
-  distance: string,
-  "pin.location": {
-    lat: number,
-    lon: number,
-  }
-}
 
 export const client = new Client({node: process.env.ELASTIC_HOST})
 
@@ -24,7 +16,7 @@ export const createEventIndex = async(force: boolean = false): Promise<ApiRespon
     body: {
       mappings: {
         properties: {
-          name: { type: 'text' },
+          name: { type: 'text', },
           briefDescription: { type: 'text' },
           longDescription: { type: 'text' },
           eventDate: { type: 'date' },
@@ -43,6 +35,18 @@ export const createEventIndex = async(force: boolean = false): Promise<ApiRespon
       },
       aliases: {
         events: {}
+      },
+      settings: {
+        analysis: {
+          analyzer: {
+            rebuilt_standard: {
+              tokenizer: "standard",
+              filter: [
+                "lowercase"
+              ]
+            }
+          }
+        }
       }
     }
   })
@@ -98,21 +102,27 @@ export const searchEvents = async(search?:SearchRequest) => {
   if (search?.name)
     Object.assign(query, 
     {
-      match: {
-        name: {
-          query: search.name
-        }
+      query_string: {
+        query: search.name,
+        fields: ['name', 'briefDescription']
       }
     })
-  
+  else
+    Object.assign(query,{ 'match_all': {}})
+  const from = search?.from ?? 0
+  const size = search?.size ?? 10
   const results = await client.search({
     index: 'events',
     body: {
+      from: from,
+      size: size,
       query: query
     }
   })
-  
-  return results
+
+  if (results.body?.hits?.hits)
+    return results.body.hits.hits
+  return {}
 }
 
 export const mapEventToElasticDoc = async(event: Event) => {

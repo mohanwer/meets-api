@@ -26,9 +26,10 @@ import { seedEvents } from './test-utils/seed';
   await createConnection(connectionDetails)
   await createEventIndex()
   const schema = await buildSchema(schemaOptions)
-  
+
+  // Todo: Change this to parameters to reset index in dev.
   if (process.env.NODE_ENV === "DEV") {
-    await seedEvents()
+    // await seedEvents()
   }
 
   const app = express()
