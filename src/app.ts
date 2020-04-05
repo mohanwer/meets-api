@@ -89,8 +89,8 @@ import { seedEvents } from './test-utils/seed';
 
   server.applyMiddleware({ app });
 
-  app.listen({ port: 3000 }, async () => {
-    console.log(`🚀 Server ready at http://localhost:${3000}${server.graphqlPath}`);
+  app.listen({ port: 5000 }, async () => {
+    console.log(`🚀 Server ready at http://localhost:${5000}${server.graphqlPath}`);
     let err;
     if(err){
       console.error('Error: Cannot connect to database');
