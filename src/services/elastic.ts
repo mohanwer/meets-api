@@ -1,4 +1,4 @@
-import { Client, ApiResponse } from '@elastic/elasticsearch'
+import { Client, ApiResponse, RequestParams } from '@elastic/elasticsearch'
 import { Event } from '../entity';
 import { SearchRequest } from '../routes/search';
 
@@ -16,6 +16,7 @@ export const createEventIndex = async(force: boolean = false): Promise<ApiRespon
     body: {
       mappings: {
         properties: {
+          id: {type: 'keyword'},
           name: { type: 'text', },
           briefDescription: { type: 'text' },
           longDescription: { type: 'text' },
@@ -83,7 +84,7 @@ export const updateEventInIndex = async(event: Event) => {
   })
 }
 
-export const searchEvents = async(search?:SearchRequest) => {
+export const searchEvents = async(search?:SearchRequest): Promise<ElasticSearchSlimResult[] | void> => {
   let query = {}
 
   if (search?.location)
@@ -108,27 +109,34 @@ export const searchEvents = async(search?:SearchRequest) => {
       }
     })
   else
-    Object.assign(query,{ 'match_all': {}})
+    Object.assign(query, { 'match_all': {} })
+
   const from = search?.from ?? 0
   const size = search?.size ?? 10
-  const results = await client.search({
+
+  const searchBody: RequestParams.Search = {
     index: 'events',
     body: {
       from: from,
       size: size,
       query: query
     }
-  })
+  }
 
-  if (results.body?.hits?.hits)
-    return results.body.hits.hits
-  return {}
+  const results: ApiResponse = await client.search(searchBody)
+
+  if (results.body?.hits?.hits) {
+    var searchResult: ElasticSearchSlimResult[] = results.body.hits.hits.map(hit => hit._source)
+    return searchResult
+  }
+    
 }
 
 export const mapEventToElasticDoc = async(event: Event) => {
   const user = await event.createdBy
   const address = await event.address
   return {
+    id: event.id,
     name: event.name,
     briefDescription: event.briefDescription,
     longDescription: event.longDescription,
@@ -146,3 +154,26 @@ export const mapEventToElasticDoc = async(event: Event) => {
     location: [address.lat, address.lng]
   }
 }
+
+export interface ElasticSearchResult {
+  id: string,
+  name: string,
+  addr1: string,
+  addr2: string,
+  briefDescription: string,
+  longDescription: string,
+  eventDate: Date,
+  userId: string,
+  email: string,
+  displayName: string,
+  city: string,
+  state: string,
+  postal: string,
+  country: string,
+  location: {
+    lat: number,
+    lon: number
+  }
+}
+
+export interface ElasticSearchSlimResult extends Omit<ElasticSearchResult, 'email'> { }

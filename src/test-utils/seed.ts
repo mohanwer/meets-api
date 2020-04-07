@@ -28,6 +28,7 @@ export const seedEvents = async() => {
 }
 
 const mapEventDoc = (event: any) => ({
+    id: event.id,
     name: event.name,
     briefDescription: event.briefDescription,
     longDescription: event.longDescription,
