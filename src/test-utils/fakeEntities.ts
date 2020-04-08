@@ -11,6 +11,13 @@ export const createUser = async(userId?: string): Promise<User> =>
     id: userId ?? faker.random.alphaNumeric(5)
   }).save()
 
+export const createUsers = async(numOfUsersToMake: number): Promise<User[]> => {
+  const promises: (Promise<User>)[] = []
+  for (let i = 0; i < numOfUsersToMake; i++)
+    promises.push(createUser())
+  return await Promise.all(promises)
+}
+
 export const createAddress = async(createdBy: User): Promise<Address> => {
   let randomAddress 
   
@@ -32,7 +39,6 @@ export const createAddress = async(createdBy: User): Promise<Address> => {
     createdBy: createdBy
   }).save()
 }
-  
 
 export const createEvent = async(createdBy: User): Promise<Event> => {
   const address = await createAddress(createdBy)
@@ -54,6 +60,15 @@ export const createEventComment = async(createdBy: User, event: Event): Promise<
     event: event,
     createdBy: createdBy
   }).save()
+
+export const createEventComments = async(numOfCommentsToAdd: number, users: User[], event: Event): Promise<EventComment[]> => {
+  const commentPromises: (Promise<EventComment>)[] = []
+  for(let i = 0; i < numOfCommentsToAdd; i++) {
+    const userForComment = users[Math.floor(Math.random() * users.length)]
+    commentPromises.push(createEventComment(userForComment, event))
+  }
+  return Promise.all(commentPromises)
+}
 
 export const createRegistration = async(createdBy: User, event: Event): Promise<Registration> =>
   await Registration.create({

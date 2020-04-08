@@ -1,6 +1,6 @@
-import { createEvent } from './fakeEntities'
+import { createEvent, createUser, createEventComments } from './fakeEntities';
 import {createEventIndex, client, deleteEventIndex} from '../services/elastic'
-import { Address, User, Event } from '../entity';
+import { Address, User, Event, EventComment } from '../entity';
 
 export const seedEvents = async() => {
   deleteEventIndex()
@@ -8,23 +8,42 @@ export const seedEvents = async() => {
       await Promise.all([
         Event.delete({}),
         Address.delete({}),
+        EventComment.delete({}),
+        User.delete({})
       ])
+      setTimeout(()=>{}, 3000)
     })
     .then(async() => await createEventIndex())
 
+  const eventPromises: (Promise<Event>)[] = []
+  const userPromises: (Promise<User>)[] = []
+  const commentPromises: (Promise<EventComment[]>)[] = []
+  const eventsCount = 100
+  const eventCommentCount = 10
+
   //Dev user should always be in the dev database.
-  const userId = process.env.DEV_USER
-  const promises: (Promise<Event>)[] = []
-  const myUser = await User.findOne(userId)
-  const eventsCount = 99
+  const myUser = await User.create({
+    displayName: process.env.DEV_USER_DISPLAY_NAME,
+    email: process.env.DEV_USER_EMAIL,
+    id: process.env.DEV_USER
+  }).save()
+  
   for(let i = 0; i < eventsCount; i++) {
-    console.log(`seeding event ${i} of ${eventsCount}`)
-    promises.push(createEvent(myUser))
+    eventPromises.push(createEvent(myUser))
+    userPromises.push(createUser())
   }
-  const events = await Promise.all(promises)
-  const eventDoc = events.map(event => mapEventDoc(event))
+
+  const events = await Promise.all(eventPromises)
+  const users = await Promise.all(userPromises)
+
+  const eventDoc = events.map(event => {
+    commentPromises.push(createEventComments(eventCommentCount, users, event))
+    return mapEventDoc(event)
+  })
+  
   const body = eventDoc.flatMap(doc => [{index: {_index: 'events' }}, doc])
   await client.bulk({body})
+  await Promise.all(commentPromises)
 }
 
 const mapEventDoc = (event: any) => ({
