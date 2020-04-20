@@ -1,6 +1,6 @@
-import { createEvent, createUser, createEventComments } from './fakeEntities';
+import { createEvent, createUser, createEventComments, createRegistrations } from './fakeEntities';
 import {createEventIndex, client, deleteEventIndex} from '../services/elastic'
-import { Address, User, Event, EventComment } from '../entity';
+import { Address, User, Event, EventComment, Registration } from '../entity';
 
 export const seedEvents = async() => {
   deleteEventIndex()
@@ -9,7 +9,8 @@ export const seedEvents = async() => {
         Event.delete({}),
         Address.delete({}),
         EventComment.delete({}),
-        User.delete({})
+        User.delete({}),
+        Registration.delete({})
       ])
       setTimeout(()=>{}, 3000)
     })
@@ -18,6 +19,7 @@ export const seedEvents = async() => {
   const eventPromises: (Promise<Event>)[] = []
   const userPromises: (Promise<User>)[] = []
   const commentPromises: (Promise<EventComment[]>)[] = []
+  const registrationPromises: (Promise<Registration[]>[]) = []
   const eventsCount = 100
   const eventCommentCount = 10
 
@@ -36,7 +38,9 @@ export const seedEvents = async() => {
   const events = await Promise.all(eventPromises)
   const users = await Promise.all(userPromises)
 
+
   const eventDoc = events.map(event => {
+    registrationPromises.push(createRegistrations(10, users, event))
     commentPromises.push(createEventComments(eventCommentCount, users, event))
     return mapEventDoc(event)
   })
@@ -44,6 +48,7 @@ export const seedEvents = async() => {
   const body = eventDoc.flatMap(doc => [{index: {_index: 'events' }}, doc])
   await client.bulk({body})
   await Promise.all(commentPromises)
+  await Promise.all(registrationPromises)
 }
 
 const mapEventDoc = (event: any) => ({

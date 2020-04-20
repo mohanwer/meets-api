@@ -111,29 +111,52 @@ export class EventResolver {
     addressToCheck: AddressToGeoCode, 
     user: User
   ): Promise<Address> {
-    const addressSearchResult = await this.addressRepo.find({
+
+    // Check if that address is in there with an address2 (apt/suit) field populated.
+    let addressSearchResult = await this.addressRepo.find({
       where: {
         addr1: addressToCheck.addr1,
+        addr2: addressToCheck.addr2,
         city: addressToCheck.city,
-        state: addressToCheck.state
+        state: addressToCheck.state,
       },
       take: 1
     })
 
+    // If the address exist precisely as it is just return this found addressId to associate with.
     if (addressSearchResult.length === 1)
       return addressSearchResult[0]
+      
+    // Perform a search against the address1 without address2 (apt/suit)
+    addressSearchResult = await this.addressRepo.find({
+      where: {
+        addr1: addressToCheck.addr1,
+        city: addressToCheck.city,
+        state: addressToCheck.state,
+      },
+      take: 1
+    })
+
+    // Found an address without address2 populated. We can use this so we don't have to hit
+    // geocodeo again.
+    if (addressSearchResult.length === 1) {
+      const similarAddress = addressSearchResult[0]
+      const similarAddressWAddr2 = {
+        ...similarAddress,
+        id: v4(),
+        addr2: addressToCheck.addr2, // just add on this one piece to make it a unique address.
+      }
+      return await this.addressRepo.create(similarAddressWAddr2).save()
+    }
     
     const addressId = v4()
     await geocode(addressToCheck)
-    const address = {
+    const newAddress = {
       id: addressId,
       ...addressToCheck,
-      createdBy: user
+      createdBy: user,
     }
 
-    const newAddress = this.addressRepo.create(address)
-    await this.addressRepo.save(newAddress)
-
-    return await this.addressRepo.findOne(addressId)
+    return await this.addressRepo.create(newAddress).save()
   }
 }

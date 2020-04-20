@@ -151,7 +151,10 @@ export const mapEventToElasticDoc = async(event: Event) => {
     state: address.state,
     postal: address.postal,
     country: address.country,
-    location: [address.lat, address.lng]
+    location: {
+      lat: address.lat, 
+      lon: address.lng
+    }
   }
 }
 

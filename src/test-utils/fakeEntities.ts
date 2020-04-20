@@ -79,6 +79,15 @@ export const createRegistration = async(createdBy: User, event: Event): Promise<
     modified: new Date()
   }).save()
 
+export const createRegistrations = async(numOfRegistrationsToAdd: number, users: User[], event: Event): Promise<Registration[]> => {
+  const registrationPromises: (Promise<Registration>)[] = []
+  for(let i = 0; i < numOfRegistrationsToAdd; i++) {
+    const userToRegister = users[Math.floor(Math.random() * users.length)]
+    registrationPromises.push(createRegistration(userToRegister, event))
+  }
+  return Promise.all(registrationPromises)
+}
+
 export const createGroup = async(createdBy: User): Promise<Group> =>
   await Group.create({
     id: v4(),

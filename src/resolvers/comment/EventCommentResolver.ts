@@ -41,8 +41,7 @@ export class EventCommentResolver {
       createdBy: creationUser
     }
 
-    this.commentRepo.create(comment)
-    return await this.commentRepo.findOne(id)
+    return await this.commentRepo.create(comment).save()
   }
 
   @Authorized()
