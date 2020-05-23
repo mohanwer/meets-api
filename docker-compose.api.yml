@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  api:
+    env_file: .env.docker
+    build: .
+    ports:
+      - 5000:5000
+
+networks:
+  default:
+    external:
+      name: meets-api_postgres

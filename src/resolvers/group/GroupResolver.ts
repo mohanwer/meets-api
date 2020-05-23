@@ -8,6 +8,9 @@ import { Event } from '../../entity/Event';
 import { EventInput } from '../event/event-input';
 import { EventResolver } from '../event/EventResolver';
 import { AuthenticationError } from 'apollo-server-express';
+import { GroupInput } from './GroupInput';
+import { geocodeAddrStr } from '../../services/geocode';
+import { GeneralAddress } from '../../entity/GeneralAddress';
 
 @Resolver(of => GroupResolver)
 export class GroupResolver {
@@ -15,6 +18,7 @@ export class GroupResolver {
     @InjectRepository(Group) private readonly groupRepo: Repository<Group>,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Event) private readonly eventRepo: Repository<Event>,
+    @InjectRepository(GeneralAddress) private readonly generalAddressRepo: Repository<GeneralAddress>,
     private readonly eventResolver: EventResolver
   ) {}
 
@@ -26,18 +30,21 @@ export class GroupResolver {
   @Authorized()
   @Mutation(returns => Group)
   async addGroup(
-    @Arg('about') about: string,
+    @Arg('groupInfo') groupInfo: GroupInput,
     @Ctx('userId') userId: string
   ): Promise<Group> {
     const id = v4()
+    const {about, name} = groupInfo
     const user = await this.userRepo.findOne(userId)
-    const group = {
+    const address = await this.getOrCreateAddress(groupInfo.location, user)
+    const newGroup = this.groupRepo.create({
       id: id,
+      generalAddress: address,
       about: about,
+      name: name,
       createdBy: user
-    }
-    const updatedGroup = this.groupRepo.create(group)
-    return await this.groupRepo.save(updatedGroup)
+    }).save()
+    return newGroup
   }
 
   @Authorized()
@@ -87,23 +94,52 @@ export class GroupResolver {
   @Mutation(returns => Group)
   async updateGroup(
     @Arg('groupId') groupId: string,
-    @Arg('about') about: string,
+    @Arg('groupInfo') groupInfo: GroupInput,
     @Ctx('userId') userId: string
   ): Promise<Group> {
-    const group = await this.groupRepo.findOne(groupId)
-    const user = await group.createdBy
+    const groupInDb = await this.groupRepo.findOne(groupId)
+    const addressInDb = await groupInDb.generalAddress
+    const user = await groupInDb.createdBy
 
     if (user.id !== userId)
       throw new AuthenticationError(`User ${userId} does not have permission to delete this group ${groupId}`)
 
-    if (group.about === about)
-      return group
-    
+    if (groupInDb.about === groupInfo.about &&
+        addressInDb.address === groupInfo.location &&
+        groupInDb.name === groupInfo.name)
+      return groupInDb
+
+    const updatedAddress = await this.getOrCreateAddress(groupInfo.location, user)
+
     const updatedGroup = {
-      about: about
+      about: groupInfo.about,
+      name: groupInfo.name,
+      generalAddress: updatedAddress
     }
 
-    await this.groupRepo.update(group.id, updatedGroup)
+    await this.groupRepo.update(groupInDb.id, updatedGroup)
     return await this.groupRepo.findOne(groupId)
+  }
+
+  async getOrCreateAddress(
+    addressToCheck: string,
+    user: User
+  ): Promise<GeneralAddress> {
+    const addressSearchResult = await this.generalAddressRepo.findOne({
+      where: {
+        location: addressToCheck
+      }
+    })
+
+    if (addressToCheck) return addressSearchResult
+    const {lat, lng} = await geocodeAddrStr(addressToCheck)
+    const newAddress = await this.generalAddressRepo.create({
+      id: v4(),
+      address: addressToCheck,
+      lat: lat,
+      lng: lng,
+      createdBy: user,
+    }).save()
+    return newAddress
   }
 }

@@ -7,6 +7,7 @@ import { Container } from 'typedi'
 import { EventCommentResolver } from './comment/EventCommentResolver'
 import { GroupResolver } from './group/GroupResolver';
 import { GroupMemberResolver } from './groupMember/GroupMemberResolver';
+import { ConfigResolver } from './configuration/ConfigResolver';
 
 const schemaOptions: BuildSchemaOptions = {
   resolvers: [
@@ -16,6 +17,7 @@ const schemaOptions: BuildSchemaOptions = {
     EventCommentResolver,
     GroupMemberResolver,
     GroupResolver,
+    ConfigResolver,
   ],
   authChecker: customAuthChecker,
   container: Container

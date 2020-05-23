@@ -16,7 +16,6 @@ import { createEventIndex } from './services/elastic';
 import { dbConnection } from './config/ormconfig';
 import { searchRouter } from './routes/search'
 import * as bodyParser from 'body-parser'
-import { seedEvents } from './test-utils/seed';
 
 (async() => {
   
@@ -27,11 +26,6 @@ import { seedEvents } from './test-utils/seed';
   await createConnection(connectionDetails)
   await createEventIndex()
   const schema = await buildSchema(schemaOptions)
-
-  // Todo: Change this to parameters to reset index in dev.
-  if (process.env.NODE_ENV === "DEV") {
-    // await seedEvents()
-  }
 
   const app = express()
   app.use(cors())
@@ -46,6 +40,7 @@ import { seedEvents } from './test-utils/seed';
     domain: process.env.AUTH0_DOMAIN,
     audience: process.env.AUTH0_AUDIENCE
   }
+
   const authMiddleware = jwt({
     secret: jwksRsa.expressJwtSecret({
       cache: true,
@@ -58,6 +53,7 @@ import { seedEvents } from './test-utils/seed';
     algorithm: ["RS256"],
     credentialsRequired: false
   })
+  
   app.use(authMiddleware);
 
   app.use(function (err, req, res, next) {

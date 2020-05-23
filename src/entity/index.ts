@@ -4,6 +4,18 @@ import {User} from './User'
 import {EventComment} from './EventComment'
 import {Address} from './Address'
 import {Group} from './Group'
-import { Lazy } from './helpers';
+import { Lazy } from './helpers'
+import { ConfigSettings } from './ConfigSettings'
+import { SeedResult } from './SeedResult';
 
-export {Event, Registration, User, EventComment, Address, Group, Lazy}
+export {
+  Event, 
+  Registration, 
+  User, 
+  EventComment, 
+  Address, 
+  Group, 
+  Lazy, 
+  ConfigSettings, 
+  SeedResult
+}

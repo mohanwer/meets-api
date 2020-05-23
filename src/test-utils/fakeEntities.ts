@@ -3,6 +3,17 @@ import { Event, User, Registration, EventComment, Address, Group } from '../enti
 import {v4} from 'uuid'
 import * as rrad from 'rrad'
 import { GroupMember } from '../entity/GroupMember';
+import { GeneralAddress } from '../entity/GeneralAddress';
+
+export const getRandomAddress = () => {
+  let randomAddress 
+  
+  // Sometimes the city is null so we need to retry another address if it is.
+  do {
+    randomAddress = rrad.addresses[Math.floor(Math.random() * rrad.addresses.length)]
+  } while (randomAddress.city === null || randomAddress.city == undefined)
+  return randomAddress
+}
 
 export const createUser = async(userId?: string): Promise<User> =>
   await User.create({
@@ -19,12 +30,7 @@ export const createUsers = async(numOfUsersToMake: number): Promise<User[]> => {
 }
 
 export const createAddress = async(createdBy: User): Promise<Address> => {
-  let randomAddress 
-  
-  // Sometimes the city is null so we need to retry another address if it is.
-  do {
-    randomAddress = rrad.addresses[Math.floor(Math.random() * rrad.addresses.length)]
-  } while (randomAddress.city === null || randomAddress.city == undefined)
+  const randomAddress = getRandomAddress()
   
   return await Address.create({
     id: v4(),
@@ -88,14 +94,28 @@ export const createRegistrations = async(numOfRegistrationsToAdd: number, users:
   return Promise.all(registrationPromises)
 }
 
-export const createGroup = async(createdBy: User): Promise<Group> =>
-  await Group.create({
+export const createGeneralAddress = async(createdBy: User): Promise<GeneralAddress> => {
+  const randomAddress = getRandomAddress()
+
+  return await GeneralAddress.create({
+    address: randomAddress.postalCode,
+    lat: randomAddress.coordinates.lat,
+    lng: randomAddress.coordinates.lng,
+  }).save()
+}
+
+export const createGroup = async(createdBy: User): Promise<Group> =>{
+  const address = await createGeneralAddress(createdBy)
+  return await Group.create({
     id: v4(),
     about: faker.lorem.sentences(),
+    name: faker.lorem.sentence(),
+    generalAddress: address,
     createdBy: createdBy,
     created: new Date(),
     modified: new Date()
   }).save()
+}
 
 export const createGroupMember = async(memberUser: User, group: Group): Promise<GroupMember> =>
   await GroupMember.create({

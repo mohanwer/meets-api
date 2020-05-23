@@ -25,7 +25,7 @@ export class Event extends BaseEntity {
   @Field(type => ID)
   id: string
 
-  @Column({nullable: false, length: 250, type: 'varchar'})
+  @Column({nullable: false, length: 250, unique: true, type: 'varchar'})
   @Field()
   name: string
 

@@ -5,6 +5,7 @@ import { Lazy } from './helpers'
 import { Event } from './Event';
 import { Group } from './Group';
 import { GroupMember } from './GroupMember';
+import { GeneralAddress } from './GeneralAddress';
 
 @Entity("users")
 @ObjectType()

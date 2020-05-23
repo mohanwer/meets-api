@@ -14,6 +14,7 @@ import { User } from './User';
 import { Event } from './Event';
 import { Lazy } from './helpers';
 import { GroupMember } from './GroupMember';
+import { GeneralAddress } from './GeneralAddress';
 
 @Entity("groups")
 @ObjectType()
@@ -22,6 +23,10 @@ export class Group extends BaseEntity {
   @PrimaryColumn({type: 'uuid'})
   @Field(type => ID)
   id: string
+
+  @Column({nullable: false, length: 50, type: 'varchar'})
+  @Field()
+  name: string
 
   @Column({nullable: false, length: 8000, type: 'varchar'})
   @Field()
@@ -40,6 +45,11 @@ export class Group extends BaseEntity {
   @Field(type => [GroupMember], {nullable: true})
   groupMembers?: Lazy<GroupMember[]>
 
+  @ManyToOne(type => GeneralAddress, generalAddress => generalAddress.groups, {lazy: true})
+  @JoinColumn({name: 'address_id'})
+  @Field(type => GeneralAddress)
+  generalAddress?: Lazy<GeneralAddress>
+
   @CreateDateColumn()
   @Field()
   created: Date
@@ -47,4 +57,5 @@ export class Group extends BaseEntity {
   @UpdateDateColumn()
   @Field()
   modified: Date
+
 }

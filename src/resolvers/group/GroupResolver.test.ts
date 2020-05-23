@@ -18,17 +18,17 @@ afterAll(async() => {
 })
 
 const addGroupMutation = `
-  mutation AddGroup($about: String!) {
-    addGroup(about: $about) {
+  mutation AddGroup($groupInfo: GroupInput!) {
+    addGroup(groupInfo: $groupInfo) {
+      name
       about
     }
   }
 `
 
 const updateGroupMutation = `
-  mutation UpdateGroup($groupId: String!, $about: String!) {
-    updateGroup(groupId: $groupId, about: $about) {
-      id
+  mutation UpdateGroup($groupId: String!, $groupInfo: GroupInput!) {
+    updateGroup(groupId: $groupId, groupInfo: $groupInfo) {
       about
     }
   }
@@ -46,17 +46,20 @@ describe('Group', () => {
 
     const groupVariables = {
       about: faker.lorem.sentence(),
+      name: faker.lorem.words(5),
+      location: faker.address.zipCode()
     }
 
     const addGroupResponse = await gCall({
       source: addGroupMutation,
       userId: user.id,
-      variableValues: groupVariables
+      variableValues: {groupInfo: groupVariables}
     })
     
     expect(addGroupResponse.data).toMatchObject({
       addGroup: {
-        about: groupVariables.about
+        about: groupVariables.about,
+        name: groupVariables.name
       }
     })
   })
@@ -64,6 +67,7 @@ describe('Group', () => {
   it('updates a group', async() => {
     const user = await createUser()
     const group = await createGroup(user)
+    const address = await group.generalAddress
     const newAbout = "new about text"
 
     const updateGroupResponse = await gCall({
@@ -71,14 +75,17 @@ describe('Group', () => {
       userId: user.id,
       variableValues: {
         groupId: group.id,
-        about: newAbout,
+        groupInfo: {
+          name: group.name,
+          about: newAbout,
+          location: address.address
+        }
       }
     })
 
     expect(updateGroupResponse.data).toMatchObject({
       updateGroup: {
         about: newAbout,
-        id: group.id,
       }
     })
   })

@@ -70,4 +70,5 @@ export class Address extends BaseEntity {
   @UpdateDateColumn()
   @Field()
   modified: Date
+  
 }

@@ -84,3 +84,25 @@ export const geocode = async(address: AddressToGeoCode) => {
   address.lng = geoCodedResult.results[0].location.lng
   address.lat = geoCodedResult.results[0].location.lat
 }
+
+export const geocodeAddrStr = async(address: string) => {
+  const qString = querystring.stringify({q: address, limit: 1})
+  const apiGetUrl = `${geoCodeoApiAddr}geocode?${qString}`
+  const geoCodedResult: AddressResponse = await new Promise((resolve, reject) => {
+    https.get(apiGetUrl, (res) => {
+      let respData = ''
+      res.setEncoding('utf8')
+      res.on('data', (chunk) => {
+        respData += chunk
+      })
+      res.on('end', () => {
+        resolve(JSON.parse(respData))
+      })
+      res.on('error', (err) => {
+        reject(err)
+      })
+    })
+  }) 
+  const {lat, lng} = geoCodedResult.results[0].location
+  return {lat, lng}
+}

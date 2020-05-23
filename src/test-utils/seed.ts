@@ -1,8 +1,16 @@
 import { createEvent, createUser, createEventComments, createRegistrations } from './fakeEntities';
 import {createEventIndex, client, deleteEventIndex} from '../services/elastic'
-import { Address, User, Event, EventComment, Registration } from '../entity';
+import { Address, User, Event, EventComment, Registration, SeedResult } from '../entity';
 
-export const seedEvents = async() => {
+export const seedEvents = async(): Promise<SeedResult[]> => {
+  const eventPromises: (Promise<Event>)[] = []
+  const userPromises: (Promise<User>)[] = []
+  const commentPromises: (Promise<EventComment[]>)[] = []
+  const registrationPromises: (Promise<Registration[]>[]) = []
+  const eventsCount = 100
+  const eventCommentCount = 10
+  const eventRegistrationCount = 10
+
   deleteEventIndex()
     .then(async() => {
       await Promise.all([
@@ -15,13 +23,6 @@ export const seedEvents = async() => {
       setTimeout(()=>{}, 3000)
     })
     .then(async() => await createEventIndex())
-
-  const eventPromises: (Promise<Event>)[] = []
-  const userPromises: (Promise<User>)[] = []
-  const commentPromises: (Promise<EventComment[]>)[] = []
-  const registrationPromises: (Promise<Registration[]>[]) = []
-  const eventsCount = 100
-  const eventCommentCount = 10
 
   //Dev user should always be in the dev database.
   const myUser = await User.create({
@@ -38,17 +39,38 @@ export const seedEvents = async() => {
   const events = await Promise.all(eventPromises)
   const users = await Promise.all(userPromises)
 
-
   const eventDoc = events.map(event => {
-    registrationPromises.push(createRegistrations(10, users, event))
+    registrationPromises.push(createRegistrations(eventRegistrationCount, users, event))
     commentPromises.push(createEventComments(eventCommentCount, users, event))
     return mapEventDoc(event)
   })
   
   const body = eventDoc.flatMap(doc => [{index: {_index: 'events' }}, doc])
+
   await client.bulk({body})
   await Promise.all(commentPromises)
   await Promise.all(registrationPromises)
+  
+  const result: SeedResult[] = [
+    {
+      tableName: 'events',
+      rowsSeeded: eventsCount,
+    },
+    {
+      tableName: 'event_comments',
+      rowsSeeded: eventsCount * eventCommentCount,
+    }, 
+    {
+      tableName: 'registration (event_attendees)',
+      rowsSeeded: eventsCount * eventRegistrationCount,  
+    },
+    {
+      tableName: 'users',
+      rowsSeeded: eventsCount // The same # of users are created as events. I just used the same loop above to generage both.
+    }
+  ]
+
+  return result
 }
 
 const mapEventDoc = (event: any) => ({
