@@ -2,7 +2,15 @@ import { Client, ApiResponse, RequestParams } from '@elastic/elasticsearch'
 import { Event } from '../entity';
 import { SearchRequest } from '../routes/search';
 
-export const client = new Client({node: process.env.ELASTIC_HOST})
+export const client = new Client({
+  cloud: {
+    id: `name:${process.env.ELASTIC_ID}`
+  },
+  auth: {
+    username: process.env.ELASTIC_USERNAME,
+    password: process.env.ELASTIC_PASSWORD
+  }
+})
 
 export const createEventIndex = async(force: boolean = false): Promise<ApiResponse<any, any>> => {
   //If index exists then stop index creation.
