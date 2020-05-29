@@ -1,11 +1,10 @@
-import {Entity, Column, PrimaryColumn, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToMany} from "typeorm"
+import {Entity, Column, PrimaryColumn, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn} from "typeorm"
 import { Field, ID, ObjectType } from 'type-graphql'
 import { Registration } from './Registration'
 import { Lazy } from './helpers'
 import { Event } from './Event';
 import { Group } from './Group';
 import { GroupMember } from './GroupMember';
-import { GeneralAddress } from './GeneralAddress';
 
 @Entity("users")
 @ObjectType()

@@ -7,6 +7,7 @@ import {Group} from './Group'
 import { Lazy } from './helpers'
 import { ConfigSettings } from './ConfigSettings'
 import { SeedResult } from './SeedResult';
+import { EventSearchResponse } from './EventSearchResponse';
 
 export {
   Event, 
@@ -17,5 +18,6 @@ export {
   Group, 
   Lazy, 
   ConfigSettings, 
-  SeedResult
+  SeedResult,
+  EventSearchResponse
 }

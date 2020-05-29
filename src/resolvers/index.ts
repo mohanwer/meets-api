@@ -1,5 +1,5 @@
 import { UserResolver } from './user/UserResolver'
-import { EventResolver } from './event/EventResolver'
+import { EventResolver } from './event/EventResolver';
 import { RegistrationResolver } from './registration/RegistrationResolver'
 import { BuildSchemaOptions } from 'type-graphql'
 import { customAuthChecker } from './customAuthChecker'
@@ -8,6 +8,7 @@ import { EventCommentResolver } from './comment/EventCommentResolver'
 import { GroupResolver } from './group/GroupResolver';
 import { GroupMemberResolver } from './groupMember/GroupMemberResolver';
 import { ConfigResolver } from './configuration/ConfigResolver';
+import { SearchResolver } from './search/SearchResolver'
 
 const schemaOptions: BuildSchemaOptions = {
   resolvers: [
@@ -18,6 +19,7 @@ const schemaOptions: BuildSchemaOptions = {
     GroupMemberResolver,
     GroupResolver,
     ConfigResolver,
+    SearchResolver
   ],
   authChecker: customAuthChecker,
   container: Container
@@ -29,6 +31,7 @@ export {
   RegistrationResolver, 
   GroupResolver,
   GroupMemberResolver,
-  EventCommentResolver, 
+  EventCommentResolver,
+  SearchResolver as EventSearchResolver, 
   schemaOptions 
 }

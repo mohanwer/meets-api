@@ -51,7 +51,8 @@ interface Location {
   lng: number
 }
 
-export const geoCodeoApiAddr = 'https://api.geocod.io/v1.4/'
+const GEO_CODE_API_ADDR = 'https://api.geocod.io/v1.6/'
+const GEO_CODE_API_KEY = process.env.GEO_CODIO
 
 export const geocode = async(address: AddressToGeoCode) => {
   const queryParams: AddressRequest = {
@@ -64,7 +65,7 @@ export const geocode = async(address: AddressToGeoCode) => {
     limit: 1
   }
   const qString = querystring.stringify(queryParams)
-  const apiGetUrl = `${geoCodeoApiAddr}geocode?${qString}`
+  const apiGetUrl = `${GEO_CODE_API_ADDR}geocode?${qString}&api_key=${GEO_CODE_API_KEY}`
   const geoCodedResult: AddressResponse = await new Promise((resolve, reject) => {
     https.get(apiGetUrl, (res) => {
       let respData = ''
@@ -85,9 +86,9 @@ export const geocode = async(address: AddressToGeoCode) => {
   address.lat = geoCodedResult.results[0].location.lat
 }
 
-export const geocodeAddrStr = async(address: string) => {
+export const geocodeAddrStr = async(address: string): Promise<{lat: number, lng: number}> => {
   const qString = querystring.stringify({q: address, limit: 1})
-  const apiGetUrl = `${geoCodeoApiAddr}geocode?${qString}`
+  const apiGetUrl = `${GEO_CODE_API_ADDR}geocode?${qString}&api_key=${GEO_CODE_API_KEY}`
   const geoCodedResult: AddressResponse = await new Promise((resolve, reject) => {
     https.get(apiGetUrl, (res) => {
       let respData = ''
