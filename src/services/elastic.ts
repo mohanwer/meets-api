@@ -1,6 +1,5 @@
 import { Client, ApiResponse, RequestParams } from "@elastic/elasticsearch";
 import { Event } from "../entity";
-import { SearchRequest } from "../routes/search";
 
 // Depending on the environment settings set the elastic settings.
 // If the elastic id is missing that means we're using a local running instance of elastic.
@@ -19,8 +18,11 @@ if (
       password: process.env.ELASTIC_PASSWORD,
     },
   };
-} else {
+} else if (process.env.ELASTIC_HOST) {
   clientSettings = { node: process.env.ELASTIC_HOST };
+} else {
+  // Final check if nothing else is found. Assume its running against local docker instance of elastic.
+  clientSettings = { node: 'http://localhost:9200' };
 }
 
 export const client = new Client(clientSettings);

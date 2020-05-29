@@ -98,6 +98,7 @@ export const createGeneralAddress = async(createdBy: User): Promise<GeneralAddre
   const randomAddress = getRandomAddress()
 
   return await GeneralAddress.create({
+    id: v4(),
     address: randomAddress.postalCode,
     lat: randomAddress.coordinates.lat,
     lng: randomAddress.coordinates.lng,

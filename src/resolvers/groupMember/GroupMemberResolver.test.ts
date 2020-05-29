@@ -55,12 +55,12 @@ describe('GroupMemberResolver', () => {
     expect(groupMemberResponse.data).toMatchObject({
       addGroupMember: {
         group: {
-          id: group.id,
-          about: group.about
+          about: group.about,
+          id: group.id
         },
         member: {
+          displayName: user.displayName,
           id: user.id,
-          displayName: user.displayName
         }
       }
     })

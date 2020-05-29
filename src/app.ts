@@ -14,8 +14,6 @@ import { schemaOptions } from './resolvers'
 import { Container } from 'typedi'
 import { createEventIndex } from './services/elastic';
 import { dbConnection } from './config/ormconfig';
-import { searchRouter } from './routes/search'
-import * as bodyParser from 'body-parser'
 
 (async() => {
   
@@ -29,11 +27,6 @@ import * as bodyParser from 'body-parser'
 
   const app = express()
   app.use(cors())
-  app.use(bodyParser.json())
-  app.use(bodyParser.urlencoded({ extended: true }));
-
-  //Add single post end point for searching events.
-  app.use(searchRouter)
 
   //Auth setup
   const authConfig = {
