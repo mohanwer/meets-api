@@ -8,9 +8,9 @@ export const seedEvents = async(): Promise<SeedResult[]> => {
   const userPromises: (Promise<User>)[] = []
   const commentPromises: (Promise<EventComment[]>)[] = []
   const registrationPromises: (Promise<Registration[]>[]) = []
-  const eventsCount = 100
-  const eventCommentCount = 10
-  const eventRegistrationCount = 10
+  const eventsCount = 200
+  const eventCommentCount = 5
+  const eventRegistrationCount = 5
 
   await deleteEventIndex()
   await Promise.all([

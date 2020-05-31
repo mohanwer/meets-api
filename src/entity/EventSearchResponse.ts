@@ -11,10 +11,10 @@ export class LocationResponse {
 
 @ObjectType()
 export class EventSearchResponse {
-  @Field({nullable: true})
+  @Field()
   id: string
 
-  @Field({nullable: true})
+  @Field()
   name: string
 
   @Field({nullable: true})
@@ -23,7 +23,7 @@ export class EventSearchResponse {
   @Field({nullable: true})
   addr2: string
 
-  @Field({nullable: true})
+  @Field()
   briefDescription: string
 
   @Field({nullable: true})
