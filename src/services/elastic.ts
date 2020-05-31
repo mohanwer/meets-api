@@ -155,7 +155,10 @@ export const searchEvents = async (
   }
 
   const results: ApiResponse = await client.search(searchBody)
-  var searchResult: EventSearchSlimResult[] = results.body.hits.hits.map((hit) => hit._source)
+  var searchResult: EventSearchSlimResult[] = results.body.hits.hits.map((hit) => {
+    hit._source.eventDate = new Date(hit._source.eventDate)
+    return hit._source
+  })
   return searchResult
 };
 
