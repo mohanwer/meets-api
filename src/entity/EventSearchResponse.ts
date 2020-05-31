@@ -17,7 +17,7 @@ export class EventSearchResponse {
   @Field()
   name: string
 
-  @Field({nullable: true})
+  @Field()
   addr1: string
   
   @Field({nullable: true})
@@ -26,28 +26,28 @@ export class EventSearchResponse {
   @Field()
   briefDescription: string
 
-  @Field({nullable: true})
+  @Field()
   longDescription: string
 
-  @Field({nullable: true})
+  @Field()
   eventDate: Date
 
-  @Field({nullable: true})
+  @Field()
   userId: string
 
-  @Field({nullable: true})
+  @Field()
   displayName: string
 
-  @Field({nullable: true})
+  @Field()
   city: string
 
-  @Field({nullable: true})
+  @Field()
   state: string
 
   @Field({nullable: true})
   postal: string
 
-  @Field({nullable: true})
+  @Field()
   country: string
 
   @Field(type => LocationResponse, {nullable: true})
