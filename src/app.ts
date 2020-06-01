@@ -14,6 +14,7 @@ import { schemaOptions } from './resolvers'
 import { Container } from 'typedi'
 import { createEventIndex } from './services/elastic';
 import { dbConnection } from './config/ormconfig';
+import * as bodyParser from 'body-parser'
 
 (async() => {
   
@@ -27,6 +28,7 @@ import { dbConnection } from './config/ormconfig';
 
   const app = express()
   app.use(cors())
+  app.use(bodyParser.json())
 
   //Auth setup
   const authConfig = {
@@ -95,3 +97,4 @@ import { dbConnection } from './config/ormconfig';
   })
 
 })();
+
