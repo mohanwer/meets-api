@@ -34,7 +34,7 @@ export class UserResolver {
   // It will check if the user is stored and up to date in the users table.
   @Authorized()
   @Mutation((returns) => User, { nullable: true })
-  async validateSignedInUser(
+  async updateUser(
     @Ctx("userId") userId: string,
     @Arg("email") email: string,
     @Arg("displayName") displayName: string
