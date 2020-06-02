@@ -42,10 +42,10 @@ export class EventResolver {
     }
     const newEvent = this.eventRepo.create(event)
     
-    await this.eventRepo.save(newEvent)
+    const savedEvent = await this.eventRepo.save(newEvent)
     await updateEventInIndex(newEvent)
     
-    return await this.eventRepo.findOne(eventId)
+    return savedEvent
   }
 
   @Authorized()
