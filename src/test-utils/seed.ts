@@ -1,7 +1,6 @@
 import { createEvent, createUser, createEventComments, createRegistrations } from './fakeEntities';
 import {createEventIndex, client, deleteEventIndex} from '../services/elastic'
-import { Address, User, Event, EventComment, Registration, SeedResult } from '../entity';
-import { ZipCode } from '../entity/ZipCode';
+import { User, Event, EventComment, Registration, SeedResult } from '../entity';
 
 export const seedEvents = async(): Promise<SeedResult[]> => {
   const eventPromises: (Promise<Event>)[] = []
@@ -11,16 +10,8 @@ export const seedEvents = async(): Promise<SeedResult[]> => {
   const eventsCount = 200
   const eventCommentCount = 5
   const eventRegistrationCount = 5
-
+  await Event.query('truncate table users cascade')
   await deleteEventIndex()
-  await Promise.all([
-    Event.delete({}),
-    Address.delete({}),
-    EventComment.delete({}),
-    User.delete({}),
-    Registration.delete({}),
-    ZipCode.delete({})
-  ])
   await createEventIndex()
 
   //Dev user should always be in the dev database.
