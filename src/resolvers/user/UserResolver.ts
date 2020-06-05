@@ -39,12 +39,12 @@ export class UserResolver {
     @Arg("email") email: string,
     @Arg("displayName") displayName: string
   ): Promise<User | undefined> {
-    const userSignedIn = await this.userRepo.findOne({ id: userId });
-
+    const userSignedIn = await this.userRepo.findOne(userId);
+    
     // If the user is accurately stored in Users then do nothing.
     if (
-      userSignedIn?.email == email &&
-      userSignedIn?.displayName == displayName
+      userSignedIn?.email === email &&
+      userSignedIn?.displayName === displayName
     )
       return userSignedIn;
 
@@ -66,6 +66,6 @@ export class UserResolver {
       displayName: displayName,
     };
 
-    return this.userRepo.create(newUser).save();
+    return this.userRepo.create(newUser);
   }
 }

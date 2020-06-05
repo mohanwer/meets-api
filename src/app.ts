@@ -69,11 +69,7 @@ import * as bodyParser from "body-parser";
     context: ({ req }) => {
       let nreq = <any>req;
 
-      // Todo: Come up with a better way to handle this.
-      // When in development, if there is no user on the context
-      // this assigns the dev user. It allows us to test end points without
-      // having auth jwt tokens on request headers.
-      if (!nreq?.user) return { userId: process.env.DEV_USER, req: req };
+      if (!nreq?.user) return {req: req };
 
       // Assign values from auth0 jwt to context.
       const { sub } = nreq.user;
