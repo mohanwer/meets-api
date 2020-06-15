@@ -31,6 +31,8 @@ The environment will need to be loaded with settings below. The DEV_USER, DEV_US
 |NODE_ENV|DEV| Running node env. |
 |VERSION|1.0.0| Application version. |
 
+After the env is set ensure to run: `yarn install`
+
 # Project structure
 The [entity folder](https://github.com/mohanwer/meets-api/tree/master/src/entity) contains classes/entities that represent the data driving the api. The majority of classes are have an @Entity flag and can be found as a table in postgres with the value foundin the @Entity attribute.
 Additionally, typegraphql is used to map these entities to GraphQL schema automatically when the application runs.
@@ -40,3 +42,6 @@ The [services folder](https://github.com/mohanwer/meets-api/tree/master/src/serv
 The [resolvers folders](https://github.com/mohanwer/meets-api/tree/master/src/resolvers) contains all the resolvers created using type-graphql and are organized by entity names.
 
 Testing in this application is done using jest and the [test utils](https://github.com/mohanwer/meets-api/tree/master/src/test-utils) contains the utilities functions that create a test database in postgres and a test graphql schema that connects to the test database.
+
+# To run the app:
+`yarn start:watch`
