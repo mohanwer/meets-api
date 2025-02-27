@@ -10,10 +10,14 @@ will need to be started. This file contains all the services that this appliatio
 - Kibana
 
 Upon first time startup of postgres, the [db/local.sql](https://github.com/mohanwer/meets-api/blob/master/db/local.sql) will have to be run using root in postgres.
-This setups the basic schema (meets_node) that is used for the application.
+This setups the basic schema, with a db owner [meets_node](https://github.com/mohanwer/meets-api/blob/32f99a224b30ecff007954e00101955aa27091d9/db/local.sql#L13C13-L13C23), that is used for the application.
 
-The environment will need to be loaded with settings below. The DEV_USER, DEV_USER_EMAIL are used to against the [config resolver](https://github.com/mohanwer/meets-api/blob/32f99a224b30ecff007954e00101955aa27091d9/src/resolvers/configuration/ConfigResolver.ts#L27) to seed the database with random test data.
+The environment will need to be loaded with settings below. 
+- The DEV_USER, DEV_USER_EMAIL are used to against the [config resolver](https://github.com/mohanwer/meets-api/blob/32f99a224b30ecff007954e00101955aa27091d9/src/resolvers/configuration/ConfigResolver.ts#L27) to seed the database with random test data.
+- AUTH0_DOMAN & AUTH0_AUDIENCE must be configured.
+- The project is setup with .dotenv and a .env file can be used at the root of the project to load environment vars.
 
+### Environment variables
 | Variable | Value | Description |
 | ----------- | ----------- | ----------- |
 |AUTH0_DOMAN| devprojecttracker.auth0.com | Auth0 domain.|
@@ -34,14 +38,17 @@ The environment will need to be loaded with settings below. The DEV_USER, DEV_US
 After the env is set ensure to run: `yarn install`
 
 # Project structure
-The [entity folder](https://github.com/mohanwer/meets-api/tree/master/src/entity) contains classes/entities that represent the data driving the api. The majority of classes are have an @Entity flag and can be found as a table in postgres with the value foundin the @Entity attribute.
-Additionally, typegraphql is used to map these entities to GraphQL schema automatically when the application runs.
+### Entity Folder
+The entity folder contains the classes (entities) that represent the core data models of the API. Most are decorated with @Entity, which indicates they map to a corresponding table in PostgreSQL (the table name matches the @Entity value). TypeGraphQL is used to automatically generate the GraphQL schema from these entities at runtime.
 
-The [services folder](https://github.com/mohanwer/meets-api/tree/master/src/services) contains external services that are used other than postgres. Currently the project is using elasticsearch and geocodio (for mapping lat/long on addresses).
+### Services Folder
+The services folder holds definitions for external services, aside from PostgreSQL. Currently, it includes Elasticsearch and Geocodio (used for address geocoding and latitude/longitude mapping).
 
-The [resolvers folders](https://github.com/mohanwer/meets-api/tree/master/src/resolvers) contains all the resolvers created using type-graphql and are organized by entity names.
+### Resolvers Folder
+The resolvers folder contains all TypeGraphQL resolvers, organized by the entity they operate on.
 
-Testing in this application is done using jest and the [test utils](https://github.com/mohanwer/meets-api/tree/master/src/test-utils) contains the utilities functions that create a test database in postgres and a test graphql schema that connects to the test database.
+### Testing
+Jest is used throughout the application for testing. The test-utils folder provides utility functions that set up a PostgreSQL test database and a corresponding GraphQL schema for test execution.
 
 # To run the app:
 `yarn start:watch`
